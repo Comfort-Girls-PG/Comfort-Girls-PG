@@ -5,8 +5,17 @@ import bcrypt from "bcryptjs";
 
 const { Pool } = pg;
 
-// We save fallback JSON files inside src/db/data
-const DATA_DIR = path.join(process.cwd(), "src", "db", "data");
+// We save fallback JSON files inside src/db/data, or in /tmp if running in a serverless environment
+const isServerless = !!(
+  process.env.VERCEL || 
+  process.env.AWS_LAMBDA_FUNCTION_VERSION || 
+  process.env.NETLIFY || 
+  process.env.RENDER
+);
+
+const DATA_DIR = isServerless 
+  ? path.join("/tmp", "comfort_pg_data") 
+  : path.join(process.cwd(), "src", "db", "data");
 
 try {
   if (!fs.existsSync(DATA_DIR)) {
