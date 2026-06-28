@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#EC4899" />
+    </linearGradient>
+  </defs>
+  <!-- Beautiful thick 'C' arc with rounded corners -->
+  <path d="M 77 30 A 33 33 0 1 0 77 70" fill="none" stroke="url(#grad)" stroke-width="24" stroke-linecap="round" />
+  
+  <!-- House shape in the center -->
+  <g fill="url(#grad)">
+    <!-- Chimney -->
+    <rect x="41" y="36" width="3" height="8" />
+    <!-- Roof triangle -->
+    <polygon points="35,50 50,35 65,50" />
+    <!-- House body -->
+    <rect x="39" y="50" width="22" height="13" />
+  </g>
+  
+  <!-- White details (cutouts) inside the house -->
+  <!-- Tiny circular roof window -->
+  <circle cx="50" cy="44" r="2" fill="#FFFFFF" />
+  <!-- Door cutout -->
+  <rect x="53" y="55" width="4" height="8" rx="0.5" fill="#FFFFFF" />
+</svg>
