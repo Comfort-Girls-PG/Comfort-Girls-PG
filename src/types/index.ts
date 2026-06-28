@@ -160,5 +160,5 @@ export interface FAQItem {
   id: string;
   question: string;
   answer: string;
-  category: "General" | "Booking & Payments" | "Amenities & Security" | "Rules & Food";
+  category: "General" | "Safety" | "Mess" | "Booking & Deposit";
 }
