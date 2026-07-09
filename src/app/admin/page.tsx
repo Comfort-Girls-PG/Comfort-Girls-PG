@@ -1,20 +1,31 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "../../context/AppContext";
 import AdminDashboard from "../../components/AdminDashboard";
-import { Booking, Complaint, Room } from "../../types";
+import { Booking, Room } from "../../types";
 import { apiClient } from "../../utils/apiClient";
 
 export default function AdminPage() {
   const router = useRouter();
-  const { currentUser, activeRooms, setActiveRooms, activeBookings, setActiveBookings, globalComplaints, setGlobalComplaints } = useApp();
+  const { currentUser, activeRooms, activeBookings, setActiveBookings } = useApp();
+
+  const [visits, setVisits] = useState<any[]>([]);
 
   useEffect(() => {
     if (!currentUser || currentUser.status !== "Admin") {
       router.push("/");
+      return;
     }
+
+    apiClient.get<any[]>("/api/visits")
+      .then((data) => {
+        if (data) {
+          setVisits(data);
+        }
+      })
+      .catch((err) => console.warn("Failed to load visits logs:", err));
   }, [currentUser, router]);
 
   if (!currentUser || currentUser.status !== "Admin") {
@@ -56,36 +67,31 @@ export default function AdminPage() {
       });
   };
 
-  const handleResolveComplaint = (id: string) => {
-    apiClient.put<Complaint>(`/api/complaints/${id}/status`, { status: "Resolved" })
-      .then((updatedComplaint) => {
-        const updated = globalComplaints.map((c) => {
-          if (c.id === id) {
-            return { ...c, ...updatedComplaint };
+  const handleApproveVisit = (id: string, adminMessage: string) => {
+    apiClient.put<any>(`/api/visits/${id}`, { status: "Approved", adminMessage })
+      .then((updatedVisit) => {
+        const updated = visits.map((v) => {
+          if (v.id === id) {
+            return { ...v, ...updatedVisit };
           }
-          return c;
+          return v;
         });
-        setGlobalComplaints(updated);
-        alert(`Maintenance ticket ${id} marked RESOLVED. Dispatch completed.`);
+        setVisits(updated);
+        alert(`Physical visit request approved and notification sent.`);
       })
       .catch((err) => {
-        alert("Failed to update complaint ticket status: " + err.message);
+        alert("Failed to update visit status: " + err.message);
       });
   };
 
-  const handleUpdateRooms = (updatedRooms: Room[]) => {
-    setActiveRooms(updatedRooms);
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50/10 dark:bg-slate-950/10">
+    <div className="min-h-screen bg-slate-50/10 dark:bg-slate-955/10">
       <AdminDashboard
         rooms={activeRooms}
         bookings={activeBookings}
-        complaints={globalComplaints}
+        visits={visits}
         onApproveBooking={handleApproveBooking}
-        onResolveComplaint={handleResolveComplaint}
-        onUpdateRooms={handleUpdateRooms}
+        onApproveVisit={handleApproveVisit}
       />
     </div>
   );

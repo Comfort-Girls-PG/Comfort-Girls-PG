@@ -178,7 +178,18 @@ export async function GET(request: Request, props: { params: Promise<{ route?: s
       }
       let list;
       if (activeUser.role === "Admin") {
-        list = await dbStore.visits.find();
+        const rawList = await dbStore.visits.find();
+        const enriched = [];
+        for (const v of rawList) {
+          const u = await dbStore.users.findById(v.userId);
+          enriched.push({
+            ...v,
+            userName: u ? u.name : "Unknown Visitor",
+            userEmail: u ? u.email : "",
+            userPhone: u ? u.phone : ""
+          });
+        }
+        list = enriched;
       } else {
         list = await dbStore.visits.find({ userId: activeUser.id });
       }
@@ -699,6 +710,48 @@ export async function PUT(request: Request, props: { params: Promise<{ route?: s
       return NextResponse.json({
         success: true,
         message: "Warden updated ticket disposition successfully.",
+        data: updated
+      });
+    }
+
+    // 4. Update Visit Status / Response message (Admin)
+    if (route[0] === "visits" && route.length === 2) {
+      const activeUser = getAuthenticatedUser(request);
+      if (!activeUser || !authorize(activeUser, ["Admin"])) {
+        return NextResponse.json({ success: false, message: "Forbidden: You don't have permission to access this resource." }, { status: 403 });
+      }
+
+      const visitId = route[1];
+      const { status, adminMessage } = body;
+
+      const updated = await dbStore.visits.findByIdAndUpdate(visitId, {
+        status,
+        adminMessage: adminMessage || ""
+      });
+
+      if (!updated) {
+        return NextResponse.json({ success: false, message: "Visit request not found." }, { status: 404 });
+      }
+
+      // Add notification to the user whose visit is updated
+      const userObj = await dbStore.users.findById(updated.userId);
+      if (userObj) {
+        const activeNotifs = userObj.notifications || [];
+        activeNotifs.unshift({
+          id: `not-${Date.now()}`,
+          title: `Visit Request ${status}`,
+          message: `Your physical visit scheduled on ${updated.date} has been ${status.toLowerCase()}. Message: "${adminMessage || 'No warden remarks.'}"`,
+          date: new Date().toISOString().split("T")[0],
+          read: false
+        });
+        await dbStore.users.findByIdAndUpdate(updated.userId, {
+          notifications: activeNotifs
+        });
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: "Visit status updated successfully.",
         data: updated
       });
     }
