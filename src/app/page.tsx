@@ -11,6 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useApp } from "../context/AppContext";
 import { MOCK_AMENITIES, DETAILED_NEARBY_PLACES, MOCK_TESTIMONIALS, MOCK_GALLERY, MOCK_FAQ } from "../lib/staticData";
+import { apiClient } from "../utils/apiClient";
 
 export default function Home() {
   const router = useRouter();
@@ -19,6 +20,40 @@ export default function Home() {
   // Search filters on Hero
   const [filterType, setFilterType] = useState<string>("");
   const [filterBudget, setFilterBudget] = useState<number>(30000);
+
+  // Visit Booking Modal State
+  const [isVisitModalOpen, setIsVisitModalOpen] = useState<boolean>(false);
+  const [visitDate, setVisitDate] = useState<string>("");
+  const [visitTime, setVisitTime] = useState<string>("09:30 AM - 11:30 AM");
+  const [visitReason, setVisitReason] = useState<string>("");
+  const [isSubmittingVisit, setIsSubmittingVisit] = useState<boolean>(false);
+
+  const handleVisitSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!visitDate || !visitTime || !visitReason.trim()) {
+      alert("Please fill in all the visit booking details.");
+      return;
+    }
+
+    setIsSubmittingVisit(true);
+    apiClient.post("/api/visits", {
+      date: visitDate,
+      time: visitTime,
+      reason: visitReason
+    })
+    .then((res) => {
+      setIsSubmittingVisit(false);
+      setIsVisitModalOpen(false);
+      setVisitDate("");
+      setVisitTime("09:30 AM - 11:30 AM");
+      setVisitReason("");
+      alert("Your physical PG visit has been requested successfully! You can monitor the status on your Resident Dashboard.");
+    })
+    .catch((err) => {
+      setIsSubmittingVisit(false);
+      alert("Failed to schedule visit: " + err.message);
+    });
+  };
 
   // Gallery dynamic states
   const [galleryTab, setGalleryTab] = useState<string>("All");
@@ -263,8 +298,11 @@ export default function Home() {
                 </button>
                 <button
                   onClick={() => {
-                    const el = document.getElementById("faq-section");
-                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                    if (!currentUser) {
+                      setIsAuthOpen(true);
+                    } else {
+                      setIsVisitModalOpen(true);
+                    }
                   }}
                   className="px-8 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all rounded-2xl font-display font-extrabold text-slate-800 dark:text-slate-200 shadow-sm cursor-pointer"
                 >
@@ -807,6 +845,96 @@ export default function Home() {
 
         </div>
       </section>
+
+      {/* VISIT BOOKING MODAL */}
+      <AnimatePresence>
+        {isVisitModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs"
+              onClick={() => setIsVisitModalOpen(false)}
+            />
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl z-10 text-left"
+            >
+              <button
+                onClick={() => setIsVisitModalOpen(false)}
+                className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="space-y-4 font-sans">
+                <div className="space-y-1">
+                  <span className="py-1 px-2.5 rounded bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-light text-[9px] font-mono font-bold uppercase tracking-wider block w-fit">
+                    Biometric Safe Visit
+                  </span>
+                  <h3 className="font-display font-black text-xl text-slate-900 dark:text-white">
+                    Book a Physical PG Visit
+                  </h3>
+                  <p className="text-xs text-slate-500 font-light">
+                    Schedule a site visit to tour our premium girls' paying guest facility.
+                  </p>
+                </div>
+
+                <form onSubmit={handleVisitSubmit} className="space-y-4 text-xs text-slate-700 dark:text-slate-350">
+                  <div className="space-y-1">
+                    <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Visit Date</label>
+                    <input
+                      type="date"
+                      required
+                      value={visitDate}
+                      onChange={(e) => setVisitDate(e.target.value)}
+                      className="w-full p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-hidden text-slate-800 dark:text-white cursor-pointer"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Preferred Time Slot</label>
+                    <select
+                      value={visitTime}
+                      onChange={(e) => setVisitTime(e.target.value)}
+                      className="w-full p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-hidden text-slate-800 dark:text-white cursor-pointer"
+                    >
+                      <option>09:30 AM - 11:30 AM</option>
+                      <option>11:30 AM - 01:30 PM</option>
+                      <option>02:30 PM - 04:30 PM</option>
+                      <option>04:30 PM - 06:30 PM</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">Reason for Visit</label>
+                    <textarea
+                      required
+                      rows={3}
+                      value={visitReason}
+                      onChange={(e) => setVisitReason(e.target.value)}
+                      placeholder="e.g. Inspecting single AC suite and checking dining mess hygiene..."
+                      className="w-full p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl outline-hidden text-slate-800 dark:text-white resize-none"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmittingVisit}
+                    className="w-full py-3.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-display text-xs font-semibold cursor-pointer disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-md shadow-primary/20"
+                  >
+                    {isSubmittingVisit ? "Scheduling..." : "Schedule Physical Visit"}
+                  </button>
+                </form>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

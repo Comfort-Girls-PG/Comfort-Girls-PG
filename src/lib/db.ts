@@ -134,8 +134,13 @@ export async function initializeDatabase() {
         date VARCHAR(255),
         time VARCHAR(255),
         reason TEXT,
-        status VARCHAR(255) DEFAULT 'Scheduled'
+        status VARCHAR(255) DEFAULT 'Scheduled',
+        "adminMessage" TEXT
       )
+    `);
+
+    await activePool.query(`
+      ALTER TABLE visits ADD COLUMN IF NOT EXISTS "adminMessage" TEXT;
     `);
 
     await activePool.query(`
