@@ -7,7 +7,8 @@ import {
   sendOtpEmail,
   generateVerificationToken,
   verifyVerificationToken,
-  sendVerificationEmail
+  sendVerificationEmail,
+  sendNotificationEmail
 } from "../../../lib/email";
 import bcrypt from "bcryptjs";
 
@@ -15,6 +16,32 @@ import bcrypt from "bcryptjs";
 function authorize(user: any, allowedRoles: string[]) {
   if (!user) return false;
   return allowedRoles.includes(user.role);
+}
+
+async function addNotification(userId: string, title: string, message: string) {
+  try {
+    const user = await dbStore.users.findById(userId);
+    if (!user) return;
+
+    // 1. Add to database notification array
+    const activeNotifs = user.notifications || [];
+    activeNotifs.unshift({
+      id: `not-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      title,
+      message,
+      date: new Date().toISOString().split("T")[0],
+      read: false
+    });
+    await dbStore.users.findByIdAndUpdate(userId, {
+      notifications: activeNotifs
+    });
+
+    // 2. Send email notification
+    const emailTarget = user.status === "Admin" ? "contact@comfortgirlspg.live" : user.email;
+    await sendNotificationEmail(emailTarget, title, title, message);
+  } catch (err) {
+    console.error("Error dispatching notification:", err);
+  }
 }
 
 // -------------------------------------------------------------
@@ -98,6 +125,14 @@ export async function GET(request: Request, props: { params: Promise<{ route?: s
       }
 
       await dbStore.users.findByIdAndUpdate(user.id, { emailVerified: true });
+
+      // Admin notification & email
+      await addNotification(
+        "usr-admin",
+        "New User Registered",
+        `${user.name} (${user.email}) has verified their email address and registered.`
+      );
+
       return NextResponse.redirect(new URL("/?verified=success", request.url));
     }
 
@@ -479,38 +514,26 @@ export async function POST(request: Request, props: { params: Promise<{ route?: 
       });
 
       const userObj = await dbStore.users.findById(activeUser.id);
-      if (userObj) {
-        const activeNotifs = userObj.notifications || [];
-        activeNotifs.unshift({
-          id: `not-${Date.now()}`,
-          title: "Booking Requested",
-          message: `Your booking request reference is registered: ${bookingId}. Standard vetting pending.`,
-          date: new Date().toISOString().split("T")[0],
-          read: false
-        });
-        await dbStore.users.findByIdAndUpdate(activeUser.id, {
-          status: "Resident",
-          bookedRoomId: roomId,
-          documentVerified: true,
-          notifications: activeNotifs
-        });
-      }
+      
+      // User notification & email
+      await addNotification(
+        activeUser.id,
+        "Booking Requested",
+        `Your booking request reference is registered: ${bookingId}. Standard vetting pending.`
+      );
+      
+      await dbStore.users.findByIdAndUpdate(activeUser.id, {
+        status: "Resident",
+        bookedRoomId: roomId,
+        documentVerified: true
+      });
 
-      // Add notification to Admin
-      const adminUser = await dbStore.users.findById("usr-admin");
-      if (adminUser) {
-        const adminNotifs = adminUser.notifications || [];
-        adminNotifs.unshift({
-          id: `not-${Date.now()}`,
-          title: "New Booking Request",
-          message: `${userObj?.name || 'A user'} requested a room booking. Reference: ${bookingId}`,
-          date: new Date().toISOString().split("T")[0],
-          read: false
-        });
-        await dbStore.users.findByIdAndUpdate("usr-admin", {
-          notifications: adminNotifs
-        });
-      }
+      // Add notification to Admin & email
+      await addNotification(
+        "usr-admin",
+        "New Booking Request",
+        `${userObj?.name || 'A user'} requested a room booking. Reference: ${bookingId}`
+      );
 
       return NextResponse.json({
         success: true,
@@ -542,22 +565,13 @@ export async function POST(request: Request, props: { params: Promise<{ route?: 
         createdAt: new Date().toISOString().split("T")[0]
       });
 
-      // Add notification to Admin
-      const adminUser = await dbStore.users.findById("usr-admin");
       const userObj = await dbStore.users.findById(activeUser.id);
-      if (adminUser) {
-        const adminNotifs = adminUser.notifications || [];
-        adminNotifs.unshift({
-          id: `not-${Date.now()}`,
-          title: "New Maintenance Complaint",
-          message: `${userObj?.name || 'A resident'} logged a complaint: "${subject}". Urgency: ${urgency || 'Medium'}`,
-          date: new Date().toISOString().split("T")[0],
-          read: false
-        });
-        await dbStore.users.findByIdAndUpdate("usr-admin", {
-          notifications: adminNotifs
-        });
-      }
+      // Add notification to Admin & email
+      await addNotification(
+        "usr-admin",
+        "New Maintenance Complaint",
+        `${userObj?.name || 'A resident'} logged a complaint: "${subject}". Urgency: ${urgency || 'Medium'}`
+      );
 
       return NextResponse.json({
         success: true,
@@ -605,22 +619,13 @@ export async function POST(request: Request, props: { params: Promise<{ route?: 
         status: "Upcoming"
       });
 
-      // Add notification to Admin
-      const adminUser = await dbStore.users.findById("usr-admin");
       const userObj = await dbStore.users.findById(activeUser.id);
-      if (adminUser) {
-        const adminNotifs = adminUser.notifications || [];
-        adminNotifs.unshift({
-          id: `not-${Date.now()}`,
-          title: "New Visit Request",
-          message: `${userObj?.name || 'A user'} scheduled a PG site visit on ${date} at ${time}. Reason: "${reason || 'Standard room inspection'}"`,
-          date: new Date().toISOString().split("T")[0],
-          read: false
-        });
-        await dbStore.users.findByIdAndUpdate("usr-admin", {
-          notifications: adminNotifs
-        });
-      }
+      // Add notification to Admin & email
+      await addNotification(
+        "usr-admin",
+        "New Visit Request",
+        `${userObj?.name || 'A user'} scheduled a PG site visit on ${date} at ${time}. Reason: "${reason || 'Standard room inspection'}"`
+      );
 
       return NextResponse.json({
         success: true,
@@ -725,20 +730,11 @@ export async function PUT(request: Request, props: { params: Promise<{ route?: s
 
       const updated = await dbStore.bookings.findByIdAndUpdate(bookingId, { status });
 
-      const userObj = await dbStore.users.findById(bkg.userId);
-      if (userObj) {
-        const activeNotifs = userObj.notifications || [];
-        activeNotifs.unshift({
-          id: `not-${Date.now()}`,
-          title: `Booking Status Update`,
-          message: `Your booking ${bookingId} status is updated to: ${status}.`,
-          date: new Date().toISOString().split("T")[0],
-          read: false
-        });
-        await dbStore.users.findByIdAndUpdate(bkg.userId, {
-          notifications: activeNotifs
-        });
-      }
+      await addNotification(
+        bkg.userId,
+        "Booking Status Update",
+        `Your booking ${bookingId} status is updated to: ${status}.`
+      );
 
       return NextResponse.json({
         success: true,
@@ -766,20 +762,11 @@ export async function PUT(request: Request, props: { params: Promise<{ route?: s
         return NextResponse.json({ success: false, message: "Complaint ticket not found." }, { status: 404 });
       }
 
-      const userObj = await dbStore.users.findById(updated.userId);
-      if (userObj) {
-        const activeNotifs = userObj.notifications || [];
-        activeNotifs.unshift({
-          id: `not-${Date.now()}`,
-          title: `Complaint Status Update`,
-          message: `Your complaint regarding "${updated.subject}" status is updated to: ${status}.`,
-          date: new Date().toISOString().split("T")[0],
-          read: false
-        });
-        await dbStore.users.findByIdAndUpdate(updated.userId, {
-          notifications: activeNotifs
-        });
-      }
+      await addNotification(
+        updated.userId,
+        "Complaint Status Update",
+        `Your complaint regarding "${updated.subject}" status is updated to: ${status}.`
+      );
 
       return NextResponse.json({
         success: true,
@@ -807,21 +794,11 @@ export async function PUT(request: Request, props: { params: Promise<{ route?: s
         return NextResponse.json({ success: false, message: "Visit request not found." }, { status: 404 });
       }
 
-      // Add notification to the user whose visit is updated
-      const userObj = await dbStore.users.findById(updated.userId);
-      if (userObj) {
-        const activeNotifs = userObj.notifications || [];
-        activeNotifs.unshift({
-          id: `not-${Date.now()}`,
-          title: `Visit Request ${status}`,
-          message: `Your physical visit scheduled on ${updated.date} has been ${status.toLowerCase()}. Message: "${adminMessage || 'No warden remarks.'}"`,
-          date: new Date().toISOString().split("T")[0],
-          read: false
-        });
-        await dbStore.users.findByIdAndUpdate(updated.userId, {
-          notifications: activeNotifs
-        });
-      }
+      await addNotification(
+        updated.userId,
+        `Visit Request ${status}`,
+        `Your physical visit scheduled on ${updated.date} has been ${status.toLowerCase()}. Message: "${adminMessage || 'No warden remarks.'}"`
+      );
 
       return NextResponse.json({
         success: true,
