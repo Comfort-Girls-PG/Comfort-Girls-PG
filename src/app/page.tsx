@@ -17,9 +17,6 @@ export default function Home() {
   const router = useRouter();
   const { activeRooms, currentUser, setIsAuthOpen } = useApp();
 
-  // Search filters on Hero
-  const [filterType, setFilterType] = useState<string>("");
-  const [filterBudget, setFilterBudget] = useState<number>(30000);
 
   // Visit Booking Modal State
   const [isVisitModalOpen, setIsVisitModalOpen] = useState<boolean>(false);
@@ -142,9 +139,6 @@ export default function Home() {
     };
   }, []);
 
-  const handleSearchTrigger = () => {
-    router.push(`/rooms?type=${filterType}&budget=${filterBudget}`);
-  };
 
   const handleNextRoom = () => {
     setRoomsCarouselIndex((prev) => (prev >= maxCarouselIndex ? 0 : prev + 1));
@@ -221,66 +215,6 @@ export default function Home() {
                 Safe, comfortable and affordable Girls PG with premium facilities, organic meals, and 24/7 security near your favorite colleges.
               </motion.p>
 
-              {/* SEARCH FILTERS CONTAINER CARD */}
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.18 }}
-                className="p-5 bg-white dark:bg-slate-950 rounded-3xl border border-slate-200/50 dark:border-slate-800 shadow-xl max-w-2xl relative"
-                id="search-filter-card"
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-
-                  {/* sharing category option selection */}
-                  <div className="sm:col-span-5 space-y-1 text-left">
-                    <label className="block text-[9px] font-mono font-bold uppercase text-slate-400 tracking-wider">
-                      Sharing Category
-                    </label>
-                    <select
-                      value={filterType}
-                      onChange={(e) => setFilterType(e.target.value)}
-                      className="w-full text-xs font-semibold py-2 bg-slate-50 dark:bg-slate-900 border border-transparent dark:border-slate-800 rounded-xl outline-hidden focus:border-primary text-slate-800 dark:text-white cursor-pointer"
-                    >
-                      <option value="">All Categories</option>
-                      <option value="Single Sharing">Single Seater</option>
-                      <option value="Double Sharing">Double Seater</option>
-                      <option value="Triple Sharing">Triple Seater</option>
-                    </select>
-                  </div>
-
-                  {/* budget scale selector slider */}
-                  <div className="sm:col-span-5 space-y-1 text-left">
-                    <div className="flex justify-between items-center">
-                      <label className="text-[9px] font-mono font-bold uppercase text-slate-400 tracking-wider">
-                        Max Budget
-                      </label>
-                      <span className="text-xs font-bold text-primary dark:text-primary-light font-mono leading-none">
-                        ₹{filterBudget.toLocaleString("en-IN")}
-                      </span>
-                    </div>
-                    <input
-                      type="range"
-                      min={6000}
-                      max={30000}
-                      step={1000}
-                      value={filterBudget}
-                      onChange={(e) => setFilterBudget(Number(e.target.value))}
-                      className="w-full accent-primary h-1 bg-slate-100 dark:bg-slate-850 rounded-lg cursor-pointer"
-                    />
-                  </div>
-
-                  {/* search CTA button */}
-                  <div className="sm:col-span-2 pt-2 sm:pt-0">
-                    <button
-                      onClick={handleSearchTrigger}
-                      className="w-full py-3.5 sm:py-4 bg-primary hover:bg-primary-dark text-white rounded-2xl flex items-center justify-center transition-all cursor-pointer shadow-md shadow-primary/15"
-                      id="search-trigger-btn"
-                    >
-                      <ArrowRight className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
 
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -323,38 +257,12 @@ export default function Home() {
               >
                 <div className="w-full h-full rounded-[24px] overflow-hidden relative">
                   <img
-                    src="https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=800"
+                    src="/homecard.png"
                     alt="Girls PG Luxury Room Showcase"
                     className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-1000"
                     referrerPolicy="no-referrer"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-900/40 via-transparent to-transparent" />
-                </div>
-
-                <div className="absolute bottom-6 left-6 right-6 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md px-5 py-4 rounded-2xl shadow-xl border border-white/40 dark:border-slate-800 space-y-1.5 z-10 transition-all group-hover:translate-y-[-2px]">
-                  <div className="flex justify-between items-center">
-                    <span className="text-[9px] font-mono font-black uppercase text-slate-400 tracking-wider">
-                      Luxury Suite • Premium
-                    </span>
-                    <span className="bg-primary/12 text-primary dark:bg-primary/30 dark:text-primary-light text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider font-mono">
-                      Available
-                    </span>
-                  </div>
-                  <h4 className="font-display font-extrabold text-sm text-slate-900 dark:text-white">
-                    Single Sharing Room
-                  </h4>
-
-                  <div className="flex items-center gap-3 pt-1.5 border-t border-slate-100 dark:border-slate-800 text-[9px] text-slate-500 dark:text-slate-400 font-bold font-sans">
-                    <span className="flex items-center gap-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary"></span> AC
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-secondary"></span> Attached Bath
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-amber-500"></span> WiFi
-                    </span>
-                  </div>
                 </div>
               </motion.div>
             </div>

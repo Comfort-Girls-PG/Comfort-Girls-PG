@@ -125,6 +125,17 @@ export default function AuthPages() {
         return;
       }
 
+      if (password.length < 4) {
+        setErrorMsg("Passcode must contain at least 4 characters.");
+        return;
+      }
+
+      const cleanPhone = phone.replace(/[^0-9]/g, "");
+      if (cleanPhone.length !== 10) {
+        setErrorMsg("Mobile number must be a valid 10-digit number.");
+        return;
+      }
+
       setIsSendingOtp(true);
       setDebugLink(null);
       setErrorMsg("");
