@@ -77,7 +77,7 @@ export function verifyOtp(email: string, code: string): boolean {
 
 export async function sendOtpEmail(email: string, code: string, name: string): Promise<boolean> {
   const transporter = getTransporter();
-  const from = process.env.SMTP_FROM || "Comfort Girls PG <noreply@comfortpg.com>";
+  const from = "Comfort Girls PG <contact@comfortgirlspg.live>";
 
   const textContent = `Hello ${name},\n\nYour onboarding validation code for Comfort Girls PG is: ${code}\n\nThis security PIN is valid for the next 10 minutes. Please enter this code in your browser dashboard to activate your resident profile.\n\nWarm regards,\nManagement Team\nComfort Girls PG`;
 
@@ -163,7 +163,7 @@ export async function sendVerificationEmail(
   requestProtocol: string
 ): Promise<{ sent: boolean; verificationLink: string }> {
   const transporter = getTransporter();
-  const from = process.env.SMTP_FROM || "Comfort Girls PG <noreply@comfortpg.com>";
+  const from = "Comfort Girls PG <contact@comfortgirlspg.live>";
   const verificationLink = `${requestProtocol}://${requestHost}/api/auth/verify?token=${token}`;
 
   const textContent = `Hello ${name},\n\nThank you for choosing Comfort Girls PG! To activate your digital resident profile, please verify your email address by clicking on the link below:\n\n${verificationLink}\n\nThis link is active for 24 hours.\n\nWarm regards,\nManagement Team\nComfort Girls PG`;
@@ -225,4 +225,65 @@ Link: ${verificationLink}
   `);
 
   return { sent: false, verificationLink };
+}
+
+export async function sendNotificationEmail(
+  to: string,
+  subject: string,
+  title: string,
+  message: string
+): Promise<boolean> {
+  const transporter = getTransporter();
+  const from = "Comfort Girls PG <contact@comfortgirlspg.live>";
+
+  const textContent = `[Comfort Girls PG Notification]\n\n${title}\n\n${message}\n\nWarm regards,\nManagement Team\nComfort Girls PG`;
+
+  const htmlContent = `
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <span style="font-size: 32px;">🏰</span>
+        <h2 style="color: #0f172a; margin-top: 8px; font-weight: 700; background: linear-gradient(to right, #ec4899, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Comfort Girls PG</h2>
+        <p style="color: #64748b; font-size: 13px; margin-top: -4px;">Account Notification</p>
+      </div>
+      
+      <div style="padding: 16px; background-color: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9; margin-bottom: 20px;">
+        <h3 style="color: #0f172a; margin: 0 0 10px 0; font-size: 16px; font-weight: 700;">${title}</h3>
+        <p style="color: #334155; font-size: 14px; line-height: 1.5; margin: 0;">${message}</p>
+      </div>
+      
+      <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
+      
+      <p style="color: #94a3b8; font-size: 11px; text-align: center; line-height: 1.4;">
+        This is an automated notification from your resident profile portal.<br />
+        © 2026 Comfort Girls PG. All rights reserved.
+      </p>
+    </div>
+  `;
+
+  if (transporter) {
+    try {
+      await transporter.sendMail({
+        from,
+        to,
+        subject: `[Comfort Girls PG] ${subject}`,
+        text: textContent,
+        html: htmlContent,
+      });
+      return true;
+    } catch (err) {
+      console.error(`Failed to dispatch notification email to ${to}:`, err);
+    }
+  }
+
+  console.log(`
+================================================================
+📧 [CONSOLE EMAIL FALLBACK - SMTP NOT CONFIGURED]
+To: ${to}
+Subject: [Comfort Girls PG] ${subject}
+Title: ${title}
+Message: ${message}
+================================================================
+  `);
+
+  return false;
 }
