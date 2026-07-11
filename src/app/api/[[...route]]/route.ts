@@ -311,6 +311,15 @@ export async function POST(request: Request, props: { params: Promise<{ route?: 
         return NextResponse.json({ success: false, message: "Please fill in all required registration fields." }, { status: 400 });
       }
 
+      if (password.length < 4) {
+        return NextResponse.json({ success: false, message: "Passcode must contain at least 4 characters." }, { status: 400 });
+      }
+
+      const cleanPhone = phone.replace(/[^0-9]/g, "");
+      if (cleanPhone.length !== 10) {
+        return NextResponse.json({ success: false, message: "Mobile number must be a valid 10-digit number." }, { status: 400 });
+      }
+
       const existingUser = await dbStore.users.findOne({ email });
       if (existingUser) {
         if (existingUser.emailVerified === false) {
@@ -487,6 +496,22 @@ export async function POST(request: Request, props: { params: Promise<{ route?: 
         });
       }
 
+      // Add notification to Admin
+      const adminUser = await dbStore.users.findById("usr-admin");
+      if (adminUser) {
+        const adminNotifs = adminUser.notifications || [];
+        adminNotifs.unshift({
+          id: `not-${Date.now()}`,
+          title: "New Booking Request",
+          message: `${userObj?.name || 'A user'} requested a room booking. Reference: ${bookingId}`,
+          date: new Date().toISOString().split("T")[0],
+          read: false
+        });
+        await dbStore.users.findByIdAndUpdate("usr-admin", {
+          notifications: adminNotifs
+        });
+      }
+
       return NextResponse.json({
         success: true,
         message: "Booking request logged. Admin clearance initiated.",
@@ -516,6 +541,23 @@ export async function POST(request: Request, props: { params: Promise<{ route?: 
         urgency: urgency || "Medium",
         createdAt: new Date().toISOString().split("T")[0]
       });
+
+      // Add notification to Admin
+      const adminUser = await dbStore.users.findById("usr-admin");
+      const userObj = await dbStore.users.findById(activeUser.id);
+      if (adminUser) {
+        const adminNotifs = adminUser.notifications || [];
+        adminNotifs.unshift({
+          id: `not-${Date.now()}`,
+          title: "New Maintenance Complaint",
+          message: `${userObj?.name || 'A resident'} logged a complaint: "${subject}". Urgency: ${urgency || 'Medium'}`,
+          date: new Date().toISOString().split("T")[0],
+          read: false
+        });
+        await dbStore.users.findByIdAndUpdate("usr-admin", {
+          notifications: adminNotifs
+        });
+      }
 
       return NextResponse.json({
         success: true,
@@ -562,6 +604,23 @@ export async function POST(request: Request, props: { params: Promise<{ route?: 
         reason: reason || "Standard room inspection",
         status: "Upcoming"
       });
+
+      // Add notification to Admin
+      const adminUser = await dbStore.users.findById("usr-admin");
+      const userObj = await dbStore.users.findById(activeUser.id);
+      if (adminUser) {
+        const adminNotifs = adminUser.notifications || [];
+        adminNotifs.unshift({
+          id: `not-${Date.now()}`,
+          title: "New Visit Request",
+          message: `${userObj?.name || 'A user'} scheduled a PG site visit on ${date} at ${time}. Reason: "${reason || 'Standard room inspection'}"`,
+          date: new Date().toISOString().split("T")[0],
+          read: false
+        });
+        await dbStore.users.findByIdAndUpdate("usr-admin", {
+          notifications: adminNotifs
+        });
+      }
 
       return NextResponse.json({
         success: true,
@@ -707,6 +766,21 @@ export async function PUT(request: Request, props: { params: Promise<{ route?: s
         return NextResponse.json({ success: false, message: "Complaint ticket not found." }, { status: 404 });
       }
 
+      const userObj = await dbStore.users.findById(updated.userId);
+      if (userObj) {
+        const activeNotifs = userObj.notifications || [];
+        activeNotifs.unshift({
+          id: `not-${Date.now()}`,
+          title: `Complaint Status Update`,
+          message: `Your complaint regarding "${updated.subject}" status is updated to: ${status}.`,
+          date: new Date().toISOString().split("T")[0],
+          read: false
+        });
+        await dbStore.users.findByIdAndUpdate(updated.userId, {
+          notifications: activeNotifs
+        });
+      }
+
       return NextResponse.json({
         success: true,
         message: "Warden updated ticket disposition successfully.",
@@ -752,6 +826,34 @@ export async function PUT(request: Request, props: { params: Promise<{ route?: s
       return NextResponse.json({
         success: true,
         message: "Visit status updated successfully.",
+        data: updated
+      });
+    }
+
+    // 5. Mark Notifications as Read
+    if (route[0] === "notifications" && route[1] === "read") {
+      const activeUser = getAuthenticatedUser(request);
+      if (!activeUser) {
+        return NextResponse.json({ success: false, message: "Access token missing or malformed." }, { status: 401 });
+      }
+
+      const userObj = await dbStore.users.findById(activeUser.id);
+      if (!userObj) {
+        return NextResponse.json({ success: false, message: "User account not found." }, { status: 404 });
+      }
+
+      const updatedNotifs = (userObj.notifications || []).map((n: any) => ({
+        ...n,
+        read: true
+      }));
+
+      const updated = await dbStore.users.findByIdAndUpdate(activeUser.id, {
+        notifications: updatedNotifs
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: "All notifications marked as read successfully.",
         data: updated
       });
     }
