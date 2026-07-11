@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Sparkles, ShieldCheck, Fingerprint, UserCheck, HeartPulse, Wifi, Zap, Shirt,
@@ -64,10 +64,7 @@ export default function Home() {
   // Testimonials slide carousel index
   const [testiIndex, setTestiIndex] = useState<number>(0);
 
-  // Rooms showcase carousel state
-  const [roomsCarouselIndex, setRoomsCarouselIndex] = useState<number>(0);
   const [windowWidth, setWindowWidth] = useState<number>(1200);
-  const [isRoomsHovered, setIsRoomsHovered] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -81,49 +78,58 @@ export default function Home() {
   const [animatedRoomsCount, setAnimatedRoomsCount] = useState<number>(5);
   const [animatedHappyCount, setAnimatedHappyCount] = useState<number>(100);
   const [nearbyActiveTab, setNearbyActiveTab] = useState<"Colleges / Universities" | "Malls" | "Companies">("Colleges / Universities");
-  const [nearbyCarouselIndex, setNearbyCarouselIndex] = useState<number>(0);
-  const [isNearbyHovered, setIsNearbyHovered] = useState<boolean>(false);
 
   const filteredNearbyPlaces = DETAILED_NEARBY_PLACES.filter(
     (place) => place.category === nearbyActiveTab
   );
 
-  const visibleNearbyCards = windowWidth >= 1280 ? 4 : windowWidth >= 1024 ? 3 : windowWidth >= 640 ? 2 : 1;
-  const maxNearbyCarouselIndex = Math.max(0, filteredNearbyPlaces.length - visibleNearbyCards);
-
-  const handleNextNearby = () => {
-    setNearbyCarouselIndex((prev) => (prev >= maxNearbyCarouselIndex ? 0 : prev + 1));
-  };
-
-  const handlePrevNearby = () => {
-    setNearbyCarouselIndex((prev) => (prev <= 0 ? maxNearbyCarouselIndex : prev - 1));
-  };
+  const nearbyContainerRef = useRef<HTMLDivElement>(null);
+  const nearbyInnerRef = useRef<HTMLDivElement>(null);
+  const [nearbyDragConstraints, setNearbyDragConstraints] = useState({ left: 0, right: 0 });
 
   useEffect(() => {
-    setNearbyCarouselIndex(0);
-  }, [nearbyActiveTab]);
+    const updateConstraints = () => {
+      if (nearbyContainerRef.current && nearbyInnerRef.current) {
+        const containerWidth = nearbyContainerRef.current.offsetWidth;
+        const innerWidth = nearbyInnerRef.current.scrollWidth;
+        const maxDrag = Math.min(0, containerWidth - innerWidth - 32);
+        setNearbyDragConstraints({ left: maxDrag, right: 0 });
+      }
+    };
 
-  // Automatic slide mechanism for Nearby Places carousel
+    updateConstraints();
+    const timer = setTimeout(updateConstraints, 100);
+
+    window.addEventListener("resize", updateConstraints);
+    return () => {
+      window.removeEventListener("resize", updateConstraints);
+      clearTimeout(timer);
+    };
+  }, [nearbyActiveTab, filteredNearbyPlaces.length]);
+
+  const roomsContainerRef = useRef<HTMLDivElement>(null);
+  const roomsInnerRef = useRef<HTMLDivElement>(null);
+  const [roomsDragConstraints, setRoomsDragConstraints] = useState({ left: 0, right: 0 });
+
   useEffect(() => {
-    if (maxNearbyCarouselIndex <= 0 || isNearbyHovered) return;
-    const interval = setInterval(() => {
-      setNearbyCarouselIndex((prev) => (prev >= maxNearbyCarouselIndex ? 0 : prev + 1));
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [maxNearbyCarouselIndex, isNearbyHovered]);
+    const updateRoomsConstraints = () => {
+      if (roomsContainerRef.current && roomsInnerRef.current) {
+        const containerWidth = roomsContainerRef.current.offsetWidth;
+        const innerWidth = roomsInnerRef.current.scrollWidth;
+        const maxDrag = Math.min(0, containerWidth - innerWidth - 32);
+        setRoomsDragConstraints({ left: maxDrag, right: 0 });
+      }
+    };
 
-  // Dynamic visible cards calculations for rooms carousel
-  const visibleCards = windowWidth >= 1024 ? 3 : windowWidth >= 768 ? 2 : 1;
-  const maxCarouselIndex = Math.max(0, activeRooms.length - visibleCards);
+    updateRoomsConstraints();
+    const timer = setTimeout(updateRoomsConstraints, 100);
 
-  // Automatic slide mechanism for Rooms carousel (every 5 seconds, pausing on hover)
-  useEffect(() => {
-    if (maxCarouselIndex <= 0 || isRoomsHovered) return;
-    const interval = setInterval(() => {
-      setRoomsCarouselIndex((prev) => (prev >= maxCarouselIndex ? 0 : prev + 1));
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [maxCarouselIndex, isRoomsHovered]);
+    window.addEventListener("resize", updateRoomsConstraints);
+    return () => {
+      window.removeEventListener("resize", updateRoomsConstraints);
+      clearTimeout(timer);
+    };
+  }, [activeRooms.length]);
 
   // Counting micro stats on landing page
   useEffect(() => {
@@ -139,14 +145,6 @@ export default function Home() {
     };
   }, []);
 
-
-  const handleNextRoom = () => {
-    setRoomsCarouselIndex((prev) => (prev >= maxCarouselIndex ? 0 : prev + 1));
-  };
-
-  const handlePrevRoom = () => {
-    setRoomsCarouselIndex((prev) => (prev <= 0 ? maxCarouselIndex : prev - 1));
-  };
 
   const renderAmenityIcon = (iconName: string) => {
     const props = { className: "w-5 h-5 text-primary shrink-0 transition-transform group-hover:scale-110" };
@@ -333,42 +331,25 @@ export default function Home() {
               Browse all options
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </button>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handlePrevRoom}
-                className="p-2 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-650 dark:text-slate-400 cursor-pointer shadow-xs transition-transform"
-                aria-label="Previous Suite"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                onClick={handleNextRoom}
-                className="p-2 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-650 dark:text-slate-400 cursor-pointer shadow-xs transition-transform"
-                aria-label="Next Suite"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
           </div>
         </div>
 
         {/* OVERFLOW TRACK CAROUSEL */}
         <div
-          className="relative overflow-hidden -mx-4 px-4 py-2"
-          onMouseEnter={() => setIsRoomsHovered(true)}
-          onMouseLeave={() => setIsRoomsHovered(false)}
+          ref={roomsContainerRef}
+          className="relative overflow-hidden -mx-4 px-4 py-2 cursor-grab active:cursor-grabbing select-none"
         >
-          <div
-            className="flex transition-transform duration-500 ease-in-out gap-6"
-            style={{
-              transform: `translateX(-${roomsCarouselIndex * (100 / visibleCards)}%)`
-            }}
+          <motion.div
+            ref={roomsInnerRef}
+            drag="x"
+            dragConstraints={roomsDragConstraints}
+            dragElastic={0.1}
+            className="flex gap-6 w-max"
           >
             {activeRooms.map((room) => (
               <div
                 key={room.id}
-                className="flex-shrink-0 w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
+                className="flex-shrink-0 w-[300px] sm:w-[350px]"
               >
                 <div className="group bg-white dark:bg-slate-950 border border-slate-250/50 dark:border-slate-800 rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-all h-full flex flex-col">
                   <div className="relative h-56 overflow-hidden flex-shrink-0">
@@ -423,7 +404,7 @@ export default function Home() {
                 </div>
               </div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -626,20 +607,20 @@ export default function Home() {
         </div>
 
         <div
-          className="relative overflow-hidden -mx-4 px-4 py-2"
-          onMouseEnter={() => setIsNearbyHovered(true)}
-          onMouseLeave={() => setIsNearbyHovered(false)}
+          ref={nearbyContainerRef}
+          className="relative overflow-hidden -mx-4 px-4 py-2 cursor-grab active:cursor-grabbing select-none"
         >
-          <div
-            className="flex transition-transform duration-500 ease-in-out gap-4"
-            style={{
-              transform: `translateX(-${nearbyCarouselIndex * (100 / visibleNearbyCards)}%)`
-            }}
+          <motion.div
+            ref={nearbyInnerRef}
+            drag="x"
+            dragConstraints={nearbyDragConstraints}
+            dragElastic={0.1}
+            className="flex gap-4 w-max"
           >
             {filteredNearbyPlaces.map((place, idx) => (
               <div
                 key={idx}
-                className="flex-shrink-0 w-full sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-12px)] xl:w-[calc(25%-12px)]"
+                className="flex-shrink-0 w-[280px] sm:w-[320px]"
               >
                 <div className="p-5 bg-white dark:bg-slate-950 border border-slate-150 dark:border-slate-800 rounded-3xl shadow-xs text-left space-y-3 h-full flex flex-col justify-between">
                   <div>
@@ -652,7 +633,7 @@ export default function Home() {
                 </div>
               </div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
