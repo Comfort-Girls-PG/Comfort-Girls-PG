@@ -52,7 +52,7 @@ export default function Navbar() {
     { label: "Amenities", href: "/#amenities", id: "amenities" },
     { label: "Gallery", href: "/#gallery", id: "gallery" },
     { label: "FAQs", href: "/#faq-section", id: "faq-section" },
-    { label: "About", href: "/#about", id: "about" },
+    { label: "About", href: "/#contact", id: "about" },
   ];
 
   const handleNavClick = (item: { href: string; id: string }) => {
