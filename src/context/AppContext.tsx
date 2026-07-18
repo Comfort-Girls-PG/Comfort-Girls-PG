@@ -8,8 +8,7 @@ import { MOCK_ROOMS } from "../lib/staticData";
 interface AppContextType {
   currentUser: UserSession | null;
   setCurrentUser: (user: UserSession | null) => void;
-  isDark: boolean;
-  setIsDark: (dark: boolean) => void;
+
   isAuthOpen: boolean;
   setIsAuthOpen: (open: boolean) => void;
   selectedRoom: Room | null;
@@ -34,30 +33,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [activeBookings, setActiveBookings] = useState<Booking[]>([]);
   const [globalComplaints, setGlobalComplaints] = useState<Complaint[]>([]);
 
-  // Theme support
-  const [isDark, setIsDark] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedTheme = localStorage.getItem("comfort_pg_theme");
-      if (savedTheme) {
-        setIsDark(savedTheme === "dark");
-      } else {
-        setIsDark(window.matchMedia("(prefers-color-scheme: dark)").matches);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (isDark) {
-      root.classList.add("dark");
-      localStorage.setItem("comfort_pg_theme", "dark");
-    } else {
-      root.classList.remove("dark");
-      localStorage.setItem("comfort_pg_theme", "light");
-    }
-  }, [isDark]);
 
   // Sync token and load initial lists
   useEffect(() => {
@@ -133,8 +109,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       value={{
         currentUser,
         setCurrentUser,
-        isDark,
-        setIsDark,
         isAuthOpen,
         setIsAuthOpen,
         selectedRoom,
