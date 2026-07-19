@@ -33,7 +33,7 @@ export default function AdminDashboard({
  ]);
 
  const [staff, setStaff] = useState([
- { id: "st-1", name: "Mrs. Savita Deshpande", role: "Chief Warden", contact: "+91 99990 92038", shift: "General 24x7" },
+ { id: "st-1", name: "Mrs. Savita Deshpande", role: "Chief Warden", contact: "+91 7303962274", shift: "General 24x7" },
  { id: "st-2", name: "Meenakshi Bhat", role: "Head Chef", contact: "+91 99011 22334", shift: "Morning / Evening" },
  { id: "st-3", name: "Lata Kamble", role: "Housekeeping Lead", contact: "+91 99022 33445", shift: "Day Shift (8AM - 4PM)" },
  { id: "st-4", name: "Kiran Patil", role: "Security Ward Officer", contact: "+91 99033 44556", shift: "Night Guard (8PM - 8AM)" },
