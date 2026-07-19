@@ -12,6 +12,8 @@ import {
 } from "../../../lib/email";
 import bcrypt from "bcryptjs";
 
+export const dynamic = "force-dynamic";
+
 // Custom helper to run role assertions on the authenticated user
 function authorize(user: any, allowedRoles: string[]) {
   if (!user) return false;

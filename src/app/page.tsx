@@ -671,13 +671,6 @@ export default function Home() {
  "{MOCK_TESTIMONIALS[testiIndex].review}"
  </p>
  <div className="flex flex-col items-center gap-3 pt-2">
- <div className="w-14 h-14 rounded-full bg-[#FDF4EB] border border-[#F4E1CE] flex items-center justify-center overflow-hidden">
- {MOCK_TESTIMONIALS[testiIndex].residentImage ? (
- <img src={MOCK_TESTIMONIALS[testiIndex].residentImage} className="w-full h-full object-cover" />
- ) : (
- <UserCheck className="w-6 h-6 text-[#D96B27]" />
- )}
- </div>
  <div>
  <h4 className="font-sans font-bold text-base text-[#4A3728] leading-none">{MOCK_TESTIMONIALS[testiIndex].residentName}</h4>
  <p className="text-[11px] text-[#4A3728]/60 pt-2 font-mono uppercase tracking-wide">Resident, {MOCK_TESTIMONIALS[testiIndex].roomType} ({MOCK_TESTIMONIALS[testiIndex].college})</p>
@@ -876,7 +869,7 @@ export default function Home() {
  <Phone className="w-5 h-5 text-[#D96B27] shrink-0" />
  <div className="flex flex-col">
  <span className="text-[10px] font-bold text-[#D96B27] uppercase tracking-wider">Admission Desk</span>
- <span className="text-sm text-[#4A3728] font-bold">+91 99990 92038</span>
+ <span className="text-sm text-[#4A3728] font-bold">+91 7303962274</span>
  </div>
  </div>
  

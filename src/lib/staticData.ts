@@ -75,9 +75,7 @@ export const MOCK_ROOMS: Room[] = [
     size: "160 - 180 sq ft",
     availability: 3,
     images: [
-      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=800",
-      "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=800",
-      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&q=80&w=800"
+      "/Single.png"
     ],
     amenities: ["four times Meal", "Two times Tea", "Free WIFI", "Washing Machine", "Common kitchen", "Common Fridge", "Common RO", "Daily room cleaning", "Washroom cleaning", "AC"],
     rules: ["No loud music after 10PM", "Pre-approve outside guests", "Smoking is strictly prohibited"],
@@ -92,20 +90,41 @@ export const MOCK_ROOMS: Room[] = [
     id: "suite-double-ac",
     name: "Double Seater (AC)",
     type: RoomType.Double,
-    price: 11000,
+    price: 10000,
     deposit: 18000,
-    priceRange: "₹11,000 - ₹15,000",
+    priceRange: "₹10,000 - ₹14,000",
     depositRange: "₹18,005 - ₹22,000",
     size: "220 - 240 sq ft",
     availability: 4,
     images: [
-      "https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&q=80&w=800",
-      "https://images.unsplash.com/photo-1560185127-6a2806647f81?auto=format&fit=crop&q=80&w=800"
+      "/Double.png"
     ],
     amenities: ["four times Meal", "Two times Tea", "Free WIFI", "Washing Machine", "Common kitchen", "Common Fridge", "Common RO", "Daily room cleaning", "Washroom cleaning", "AC"],
     rules: ["No loud video calls inside after 11PM", "Share cleanup responsibilities fairly", "No heating appliances inside"],
     description: "Aesthetic spacious double sharing AC room with personalized drawers, dual study workspaces, and shared balcony access.",
     rating: 4.7,
+    nearbyColleges: [
+      { collegeId: "colleges", distance: "0.8 km" }
+    ],
+    roommates: []
+  },
+  {
+    id: "suite-double-cooler",
+    name: "Double Seater (Cooler)",
+    type: RoomType.Double,
+    price: 9500,
+    deposit: 15000,
+    priceRange: "₹9,500",
+    depositRange: "₹15,000",
+    size: "220 - 240 sq ft",
+    availability: 5,
+    images: [
+      "/Double.png"
+    ],
+    amenities: ["four times Meal", "Two times Tea", "Free WIFI", "Washing Machine", "Common kitchen", "Common Fridge", "Common RO", "Daily room cleaning", "Washroom cleaning", "Cooler/Fan"],
+    rules: ["No loud video calls inside after 11PM", "Share cleanup responsibilities fairly", "No heating appliances inside"],
+    description: "Aesthetic spacious double sharing cooler room with personalized drawers, dual study workspaces, and shared balcony access.",
+    rating: 4.6,
     nearbyColleges: [
       { collegeId: "colleges", distance: "0.8 km" }
     ],
@@ -122,8 +141,7 @@ export const MOCK_ROOMS: Room[] = [
     size: "280 - 300 sq ft",
     availability: 6,
     images: [
-      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&q=80&w=800",
-      "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&q=80&w=800"
+      "/Triple.png"
     ],
     amenities: ["four times Meal", "Two times Tea", "Free WIFI", "Washing Machine", "Common kitchen", "Common Fridge", "Common RO", "Daily room cleaning", "Washroom cleaning", "AC"],
     rules: ["Lights out by 11:30 PM", "No visitors allowed overnight"],
@@ -145,8 +163,7 @@ export const MOCK_ROOMS: Room[] = [
     size: "280 sq ft",
     availability: 8,
     images: [
-      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=800",
-      "https://images.unsplash.com/photo-1560185127-6a2806647f81?auto=format&fit=crop&q=80&w=800"
+      "/Triple.png"
     ],
     amenities: ["four times Meal", "Two times Tea", "Free WIFI", "Washing Machine", "Common kitchen", "Common Fridge", "Common RO", "Daily room cleaning", "Washroom cleaning", "Cooler/Fan"],
     rules: ["Regular housekeeping cooperation", "Warden permission for room assembly"],
@@ -162,7 +179,7 @@ export const MOCK_ROOMS: Room[] = [
 export const MOCK_TESTIMONIALS: Testimonial[] = [
   {
     id: "test-1",
-    residentName: "Aishwarya Ranade",
+    residentName: "Ananya Sharma",
     residentImage: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=150",
     review: "I have lived at Comfort Girls PG for 2 years while doing my MBA. The security is outstanding - the biometric entrance and female security guards really give me and my parents 100% peace of mind. The study room has been a savior during late-night projects!",
     rating: 5,
@@ -171,7 +188,7 @@ export const MOCK_TESTIMONIALS: Testimonial[] = [
   },
   {
     id: "test-2",
-    residentName: "Riya Kapoor",
+    residentName: "Priya Singh",
     residentImage: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150",
     review: "The food here is simply the best. Unlike other PG mess where food is oily and heavy, Comfort PG serves delicious, high-protein organic food. Housekeeping does deep cleaning daily, and the staff feels like an extended family.",
     rating: 5,
@@ -180,7 +197,7 @@ export const MOCK_TESTIMONIALS: Testimonial[] = [
   },
   {
     id: "test-3",
-    residentName: "Tanvi Saxena",
+    residentName: "Neha Gupta",
     residentImage: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=150",
     review: "The reservation flow is exceptionally fast. I did my room mapping and booked physical visitation online. Moving in was smooth, completed all layout checks on-board and paid electronically. Highly suggest to any student!",
     rating: 4.8,
@@ -189,7 +206,7 @@ export const MOCK_TESTIMONIALS: Testimonial[] = [
   },
   {
     id: "test-4",
-    residentName: "Devika Nair",
+    residentName: "Pooja Verma",
     residentImage: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150",
     review: "I loved the community celebrations and movies we assemble over in the central courtyard! Living here is a breeze, the generators cope up seamlessly and fast laundry turnaround is a massive relief.",
     rating: 5,
@@ -198,7 +215,7 @@ export const MOCK_TESTIMONIALS: Testimonial[] = [
   },
   {
     id: "test-5",
-    residentName: "Kriti Jaiswal",
+    residentName: "Riya Mehta",
     residentImage: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=150",
     review: "Affordable and truly upscale living space. Having comfortable roommate indexing on dashboard made matching with Ananya so perfect. We became solid friends!",
     rating: 4.9,
