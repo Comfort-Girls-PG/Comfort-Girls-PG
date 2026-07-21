@@ -98,6 +98,17 @@ export interface Booking {
   createdAt: string;
 }
 
+export interface Visit {
+  id: string;
+  userId: string;
+  date: string;
+  time: string;
+  reason: string;
+  status: string;
+  adminMessage?: string;
+  createdAt?: string;
+}
+
 export interface Complaint {
   id: string;
   userId: string;

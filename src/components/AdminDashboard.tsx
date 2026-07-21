@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Room, Booking } from "../types";
+import { Room, Visit } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { ClipboardList, Users, BarChart3, Contact, BookOpenCheck } from "lucide-react";
 
 interface AdminDashboardProps {
  rooms: Room[];
- visits: Booking[];
+ visits: Visit[];
  onApproveVisit: (id: string, message: string) => void;
 }
 
@@ -269,26 +269,25 @@ export default function AdminDashboard({
  ) : (
  <div className="space-y-3.5 pt-2">
  {visits.map((v) => {
- const roomInfo = rooms.find(r => r.id === v.roomId);
  return (
  <div key={v.id} className="p-4 rounded-xl border border-slate-150 space-y-3 font-sans text-xs flex flex-col justify-between">
  <div className="flex justify-between items-center font-mono">
  <span className="font-bold text-slate-500">REF: {v.id}</span>
  <span className={`py-0.5 px-2.5 rounded font-bold text-[9px] uppercase ${
- v.status === "Visit Scheduled"
- ? "bg-emerald-500/10 text-emerald-600 "
- : "bg-amber-500/10 text-amber-600 animate-pulse"
- }`}>
- {v.status || "Pending"}
- </span>
+ v.status === "Upcoming"
+ ? "bg-amber-500/10 text-amber-600 animate-pulse"
+ : "bg-emerald-500/10 text-emerald-600 "
+ }`}>{v.status}</span>
  </div>
 
- <div className="text-left space-y-1 text-slate-650 ">
- <h4 className="font-semibold text-slate-850 text-sm leading-snug">{(v as any).userName}</h4>
- <p className="font-mono text-[10px] text-slate-500">{(v as any).userEmail} | {(v as any).userPhone}</p>
- <div className="grid grid-cols-2 gap-2 pt-1 pb-1 font-mono text-[10px] text-slate-700 ">
- <p>Requested Room: <strong className="text-slate-900 ">{roomInfo?.name || v.roomId} ({v.sharingType})</strong></p>
- <p>Time Slot: <strong className="text-slate-900 ">{v.scheduleVisitDate}</strong></p>
+ <div className="flex gap-4 items-center mt-2">
+ <div className="w-14 h-14 rounded-xl object-cover bg-slate-100 flex items-center justify-center border border-slate-200 text-slate-400">
+ <ClipboardList className="w-6 h-6" />
+ </div>
+ <div className="space-y-1 text-slate-600">
+ <p>Date: <strong className="text-slate-900 ">{v.date}</strong></p>
+ <p>Time Slot: <strong className="text-slate-900 ">{v.time}</strong></p>
+ <p>Reason: <strong className="text-slate-900 ">{v.reason}</strong></p>
  </div>
  </div>
 
