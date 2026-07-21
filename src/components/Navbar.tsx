@@ -216,12 +216,9 @@ export default function Navbar() {
  className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors cursor-pointer"
  id="profile-dropdown-btn"
  >
- <img
- src={user.avatar || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150"}
- alt={user.name}
- className="w-7 h-7 rounded-full object-cover border border-primary/20"
- referrerPolicy="no-referrer"
- />
+ <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs border border-primary/20">
+ {user.name.charAt(0).toUpperCase()}
+ </div>
  <div className="text-left leading-tight hidden lg:block">
  <p className="text-xs font-semibold text-slate-800 ">{user.name}</p>
  <p className="text-[9px] font-mono text-slate-505">{user.status}</p>
@@ -435,7 +432,9 @@ export default function Navbar() {
  {user ? (
  <div className="space-y-2">
  <div className="flex items-center gap-3 px-4 py-2">
- <img src={user.avatar} className="w-10 h-10 rounded-full object-cover" referrerPolicy="no-referrer" />
+ <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg border-2 border-primary/20">
+ {user.name.charAt(0).toUpperCase()}
+ </div>
  <div>
  <p className="font-semibold text-slate-800 leading-none">{user.name}</p>
  <p className="text-xs text-slate-500">{user.status}</p>

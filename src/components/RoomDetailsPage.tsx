@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Room, NearbyCollege, UserSession } from "../types";
 import { motion } from "motion/react";
 import { ArrowLeft, Star, Ruler, Users, BadgeAlert, Wifi, Bed, ShieldAlert, CheckCircle, Calendar, MessageSquare, Compass, ArrowRight, HeartHandshake } from "lucide-react";
+import { useToast } from "../context/ToastContext";
 
 interface RoomDetailsPageProps {
  room: Room;
@@ -23,6 +24,7 @@ export default function RoomDetailsPage({
  const [activeTab, setActiveTab] = useState<"about" | "roommates" | "reviews">("about");
  const [selectedImg, setSelectedImg] = useState(room.images[0]);
  const [visitDate, setVisitDate] = useState("");
+ const toast = useToast();
 
  const matchingColleges = colleges.filter(col => 
  room.nearbyColleges.some(nc => nc.collegeId === col.id)
@@ -174,7 +176,9 @@ export default function RoomDetailsPage({
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  {room.roommates.map((mate, index) => (
  <div key={index} className="flex gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 ">
- <img src={mate.avatar} className="w-12 h-12 rounded-full object-cover shrink-0 border-2 border-primary-light" referrerPolicy="no-referrer" />
+ <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shrink-0 border-2 border-primary-light">
+ {mate.name.charAt(0).toUpperCase()}
+ </div>
  <div className="space-y-1.5">
  <p className="font-semibold text-sm text-slate-900 leading-none">{mate.name}</p>
  <p className="text-xs text-slate-500">{mate.college}</p>
@@ -213,7 +217,9 @@ export default function RoomDetailsPage({
  <div key={rev.id} className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2">
  <div className="flex justify-between items-start">
  <div className="flex gap-3 items-center">
- <img src={rev.avatar} className="w-9 h-9 rounded-full object-cover" />
+ <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+ {rev.author.charAt(0).toUpperCase()}
+ </div>
  <div>
  <p className="text-xs font-semibold text-slate-800 ">{rev.author}</p>
  <p className="text-[10px] text-slate-500">{rev.date}</p>
@@ -302,7 +308,7 @@ export default function RoomDetailsPage({
  return;
  }
  if (!visitDate) {
- alert("Please choose a validation visitation date from the widget.");
+ toast.error("Please choose a validation visitation date from the widget.");
  return;
  }
  // Simulate booking visit

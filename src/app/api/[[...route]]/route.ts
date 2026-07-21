@@ -156,7 +156,6 @@ export async function GET(request: Request, props: { params: Promise<{ route?: s
           email: user.email,
           phone: user.phone,
           college: user.college,
-          avatar: user.avatar,
           documentVerified: user.documentVerified,
           status: user.status,
           bookedRoomId: user.bookedRoomId,
@@ -342,7 +341,6 @@ export async function POST(request: Request, props: { params: Promise<{ route?: 
             email: updatedUser.email,
             phone: updatedUser.phone,
             college: updatedUser.college,
-            avatar: updatedUser.avatar,
             documentVerified: updatedUser.documentVerified,
             status: updatedUser.status,
             bookedRoomId: updatedUser.bookedRoomId,
@@ -393,7 +391,6 @@ export async function POST(request: Request, props: { params: Promise<{ route?: 
         phone,
         college: college || "None",
         passwordHash,
-        avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150",
         documentVerified: false,
         status: "Visitor",
         bookedRoomId: null,
@@ -450,7 +447,6 @@ export async function POST(request: Request, props: { params: Promise<{ route?: 
             email: user.email,
             phone: user.phone,
             college: user.college,
-            avatar: user.avatar,
             documentVerified: user.documentVerified,
             status: user.status,
             bookedRoomId: user.bookedRoomId,
@@ -672,7 +668,7 @@ export async function PUT(request: Request, props: { params: Promise<{ route?: s
         return NextResponse.json({ success: false, message: "Access token missing or malformed." }, { status: 401 });
       }
 
-      const { name, phone, college, avatar } = body;
+      const { name, phone, college } = body;
       const user = await dbStore.users.findById(activeUser.id);
       if (!user) {
         return NextResponse.json({ success: false, message: "User not found." }, { status: 404 });
@@ -682,7 +678,6 @@ export async function PUT(request: Request, props: { params: Promise<{ route?: s
       if (name !== undefined) updateData.name = name;
       if (phone !== undefined) updateData.phone = phone;
       if (college !== undefined) updateData.college = college;
-      if (avatar !== undefined) updateData.avatar = avatar;
 
       const updatedUser = await dbStore.users.findByIdAndUpdate(activeUser.id, updateData);
       if (!updatedUser) {
@@ -698,7 +693,6 @@ export async function PUT(request: Request, props: { params: Promise<{ route?: s
           email: updatedUser.email,
           phone: updatedUser.phone,
           college: updatedUser.college,
-          avatar: updatedUser.avatar,
           documentVerified: updatedUser.documentVerified,
           status: updatedUser.status,
           bookedRoomId: updatedUser.bookedRoomId,
