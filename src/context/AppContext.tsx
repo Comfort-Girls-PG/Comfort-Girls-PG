@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Room, Booking, Complaint, UserSession } from "../types";
+import { Room, Booking, Complaint, UserSession, Visit } from "../types";
 import { apiClient } from "../utils/apiClient";
 import { MOCK_ROOMS } from "../lib/staticData";
 
@@ -17,6 +17,8 @@ interface AppContextType {
   setActiveRooms: (rooms: Room[]) => void;
   activeBookings: Booking[];
   setActiveBookings: (bookings: Booking[]) => void;
+  activeVisits: Visit[];
+  setActiveVisits: (visits: Visit[]) => void;
   globalComplaints: Complaint[];
   setGlobalComplaints: (complaints: Complaint[]) => void;
   logout: () => void;
@@ -31,6 +33,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [activeRooms, setActiveRooms] = useState<Room[]>(MOCK_ROOMS);
   const [activeBookings, setActiveBookings] = useState<Booking[]>([]);
+  const [activeVisits, setActiveVisits] = useState<Visit[]>([]);
   const [globalComplaints, setGlobalComplaints] = useState<Complaint[]>([]);
 
 
@@ -61,10 +64,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Sync bookings & complaints when user changes
+  // Sync bookings, visits & complaints when user changes
   useEffect(() => {
     if (!currentUser) {
       setActiveBookings([]);
+      setActiveVisits([]);
       setGlobalComplaints([]);
       return;
     }
@@ -76,6 +80,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         }
       })
       .catch((err) => console.warn("Could not retrieve active bookings:", err));
+
+    apiClient.get<Visit[]>("/api/visits")
+      .then((data) => {
+        if (data) {
+          setActiveVisits(data);
+        }
+      })
+      .catch((err) => console.warn("Could not retrieve active visits:", err));
 
     apiClient.get<Complaint[]>("/api/complaints")
       .then((data) => {
@@ -90,6 +102,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("comfort_pg_token");
     setCurrentUser(null);
     setActiveBookings([]);
+    setActiveVisits([]);
     setGlobalComplaints([]);
   };
 
@@ -117,6 +130,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         setActiveRooms,
         activeBookings,
         setActiveBookings,
+        activeVisits,
+        setActiveVisits,
         globalComplaints,
         setGlobalComplaints,
         logout,
