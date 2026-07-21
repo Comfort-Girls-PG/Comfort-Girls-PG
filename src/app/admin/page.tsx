@@ -6,10 +6,12 @@ import { useApp } from "../../context/AppContext";
 import AdminDashboard from "../../components/AdminDashboard";
 import { Booking, Room, Visit } from "../../types";
 import { apiClient } from "../../utils/apiClient";
+import { useToast } from "../../context/ToastContext";
 
 export default function AdminPage() {
   const router = useRouter();
   const { currentUser, activeRooms, activeBookings, setActiveBookings, activeVisits, setActiveVisits } = useApp();
+  const toast = useToast();
 
   useEffect(() => {
     if (!currentUser || currentUser.status !== "Admin") {
@@ -50,10 +52,10 @@ export default function AdminPage() {
           return v;
         });
         setActiveVisits(updated);
-        alert(`Visit request approved and notification sent.`);
+        toast.success(`Visit request approved and notification sent.`);
       })
       .catch((err) => {
-        alert("Failed to update visit status: " + err.message);
+        toast.error("Failed to update visit status: " + err.message);
       });
   };
 

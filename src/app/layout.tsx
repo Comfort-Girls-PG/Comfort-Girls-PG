@@ -1,6 +1,7 @@
 import React from "react";
 import "../index.css";
 import { AppProvider } from "../context/AppContext";
+import { ToastProvider } from "../context/ToastContext";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import AuthPages from "../components/AuthPages";
@@ -18,6 +19,7 @@ export default function RootLayout({
  return (
  <html lang="en">
  <body className="bg-slate-50 text-slate-800 transition-colors duration-300 antialiased min-h-screen flex flex-col">
+ <ToastProvider>
  <AppProvider>
  <Navbar />
  <main className="flex-grow">
@@ -26,6 +28,7 @@ export default function RootLayout({
  <Footer />
  <AuthPages />
  </AppProvider>
+ </ToastProvider>
  </body>
  </html>
  );

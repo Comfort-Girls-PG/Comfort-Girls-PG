@@ -79,7 +79,6 @@ export async function initializeDatabase() {
         "passwordHash" VARCHAR(255),
         phone VARCHAR(255),
         college VARCHAR(255),
-        avatar TEXT,
         "documentVerified" BOOLEAN DEFAULT false,
         status VARCHAR(255) DEFAULT 'Resident',
         notifications JSONB DEFAULT '[]'::jsonb,
@@ -561,14 +560,14 @@ async function seedPostgresDatabase(activePool: pg.Pool) {
       const hashedStudentPassword = await bcrypt.hash("student123", 10);
 
       await activePool.query(`
-        INSERT INTO users (id, name, email, "passwordHash", phone, college, avatar, "documentVerified", status, "emailVerified")
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      `, ["usr-admin", "Admin", "contact@comfortgirlspg.live", hashedAdminPassword, "9876541201", "Comfort PG Warden Admin", "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=150", true, "Admin", true]);
+        INSERT INTO users (id, name, email, "passwordHash", phone, college, "documentVerified", status, "emailVerified")
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `, ["usr-admin", "Admin", "contact@comfortgirlspg.live", hashedAdminPassword, "9876541201", "Comfort PG Warden Admin", true, "Admin", true]);
 
       await activePool.query(`
-        INSERT INTO users (id, name, email, "passwordHash", phone, college, avatar, "documentVerified", status, "emailVerified")
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      `, ["usr-student", "Sheel Ganvir", "student@comfortpg.com", hashedStudentPassword, "+91 77777 88888", "Symbiosis corridor", "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150", true, "Resident", true]);
+        INSERT INTO users (id, name, email, "passwordHash", phone, college, "documentVerified", status, "emailVerified")
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `, ["usr-student", "Sheel Ganvir", "student@comfortpg.com", hashedStudentPassword, "+91 77777 88888", "Symbiosis corridor", true, "Resident", true]);
       console.log("Seeded Postgres users.");
     }
 
@@ -652,7 +651,6 @@ async function seedLocalJsonDatabase() {
         passwordHash: hashedAdminPassword,
         phone: "9876541201",
         college: "Comfort PG Warden Admin",
-        avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=150",
         documentVerified: true,
         status: "Admin",
         emailVerified: true,
@@ -668,7 +666,6 @@ async function seedLocalJsonDatabase() {
         passwordHash: hashedStudentPassword,
         phone: "+91 77777 88888",
         college: "Symbiosis corridor",
-        avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150",
         documentVerified: true,
         status: "Resident",
         emailVerified: true,

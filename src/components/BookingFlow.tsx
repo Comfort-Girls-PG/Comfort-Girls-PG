@@ -3,6 +3,7 @@ import { Room, Booking, UserSession } from "../types";
 import { motion, AnimatePresence } from "motion/react";
 import { CheckCircle2, ChevronRight, FileUp, ArrowLeft, ArrowRight } from "lucide-react";
 import { apiClient } from "../utils/apiClient";
+import { useToast } from "../context/ToastContext";
 
 interface BookingFlowProps {
   room: Room;
@@ -17,6 +18,7 @@ export default function BookingFlow({
   onBookingComplete,
   onCancel,
 }: BookingFlowProps) {
+  const toast = useToast();
   const [step, setStep] = useState<2 | 3 | 4>(2); // 1 = Room Selected (Done), 2 = Date, 3 = KYC, 4 = Success
 
   // Visit states
@@ -68,13 +70,13 @@ export default function BookingFlow({
   const handleStepCompletion = () => {
     if (step === 2) {
       if (!scheduleDate) {
-        alert("Please set a convenient visitation date to schedule properly.");
+        toast.error("Please set a convenient visitation date to schedule properly.");
         return;
       }
       setStep(3);
     } else if (step === 3) {
       if (!docFile) {
-        alert("Please upload your KYC credentials to proceed safely.");
+        toast.error("Please upload your KYC credentials to proceed safely.");
         return;
       }
       
@@ -93,7 +95,7 @@ export default function BookingFlow({
       })
       .catch((err) => {
         setIsLoading(false);
-        alert(err.message || "Failed to schedule visit. Please try again.");
+        toast.error(err.message || "Failed to schedule visit. Please try again.");
       });
     }
   };

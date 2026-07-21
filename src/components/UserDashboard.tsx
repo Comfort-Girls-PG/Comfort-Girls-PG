@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { UserSession, Room, Booking, Visit } from "../types";
 import { User, Sparkles } from "lucide-react";
 import { apiClient } from "../utils/apiClient";
+import { useToast } from "../context/ToastContext";
 
 interface UserDashboardProps {
  currentUser: UserSession;
@@ -22,35 +23,33 @@ export default function UserDashboard({
  onGoHome,
  onUpdateUser,
 }: UserDashboardProps) {
+ const toast = useToast();
  const [activeTab, setActiveTab] = useState<"profile" | "visit">("profile");
  // Profile editing states
  const [editMode, setEditMode] = useState(false);
  const [editName, setEditName] = useState(currentUser.name || "");
  const [editPhone, setEditPhone] = useState(currentUser.phone || "");
  const [editCollege, setEditCollege] = useState(currentUser.college || "");
- const [editAvatar, setEditAvatar] = useState(currentUser.avatar || "");
  const [isSaving, setIsSaving] = useState(false);
 
  useEffect(() => {
  setEditName(currentUser.name || "");
  setEditPhone(currentUser.phone || "");
  setEditCollege(currentUser.college || "");
- setEditAvatar(currentUser.avatar || "");
  }, [currentUser]);
 
  const handleUpdateProfile = (e: React.FormEvent) => {
  e.preventDefault();
  if (!editName.trim()) {
- alert("Please specify a valid student name.");
+ toast.error("Please specify a valid student name.");
  return;
  }
  setIsSaving(true);
  apiClient.put<{ success: boolean; data: UserSession }>("/api/auth/profile", {
- name: editName,
- phone: editPhone,
- college: editCollege,
- avatar: editAvatar
- })
+  name: editName,
+  phone: editPhone,
+  college: editCollege
+  })
  .then((res) => {
  setIsSaving(false);
  if (res && res.data) {
@@ -58,14 +57,14 @@ export default function UserDashboard({
  onUpdateUser(res.data);
  }
  setEditMode(false);
- alert("Your resident profile credentials updated successfully!");
+ toast.success("Your resident profile credentials updated successfully!");
  } else {
- alert("Received invalid reply from server.");
+ toast.error("Received invalid reply from server.");
  }
  })
  .catch((err) => {
  setIsSaving(false);
- alert("Could not update profile information: " + err.message);
+ toast.error("Could not update profile information: " + err.message);
  });
  };
 
@@ -78,7 +77,9 @@ export default function UserDashboard({
  <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-gradient-to-r from-primary/5 via-secondary/5 to-transparent border border-slate-100 p-6 rounded-3xl mb-10 shadow-xs">
  <div className="flex items-center gap-4">
  <div className="relative">
- <img src={currentUser.avatar} className="w-14 h-14 rounded-full object-cover border-2 border-primary" referrerPolicy="no-referrer" />
+ <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl border-2 border-primary">
+ {currentUser.name.charAt(0).toUpperCase()}
+ </div>
  <span className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white " />
  </div>
  <div>
@@ -218,68 +219,6 @@ export default function UserDashboard({
  onChange={(e) => setEditCollege(e.target.value)}
  className="w-full text-xs font-semibold p-2 bg-white border border-slate-200 rounded-xl outline-hidden focus:border-primary text-slate-800 "
  />
- </div>
-
- {/* Preset avatar selector */}
- <div className="space-y-3">
- <label className="text-[9px] text-slate-400 font-mono uppercase tracking-widest block font-bold">Digital Avatar / Profile Picture</label>
- 
- <div className="flex items-center gap-4 p-3.5 bg-white border border-slate-200 rounded-2xl">
- <img 
- src={editAvatar || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150"} 
- className="w-12 h-12 rounded-full object-cover border border-slate-200 shadow-inner" 
- referrerPolicy="no-referrer"
- />
- <div className="flex flex-col gap-1.5 text-left">
- <label className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-750 font-semibold rounded-xl text-[10px] cursor-pointer transition-colors border border-slate-200 w-fit">
- Choose Image File
- <input
- type="file"
- accept="image/*"
- className="hidden"
- onChange={(e) => {
- const file = e.target.files?.[0];
- if (file) {
- if (file.size > 2 * 1024 * 1024) {
- alert("Please select an image smaller than 2MB to ensure fast profile syncing.");
- return;
- }
- const reader = new FileReader();
- reader.onloadend = () => {
- setEditAvatar(reader.result as string);
- };
- reader.readAsDataURL(file);
- }
- }}
- />
- </label>
- <span className="text-[8px] text-slate-400 font-light font-sans">Supports PNG, JPG, GIF up to 2MB</span>
- </div>
- </div>
-
- <div className="space-y-1.5">
- <span className="text-[8px] text-slate-455 font-mono uppercase tracking-wider block font-bold">Or select a preset badge:</span>
- <div className="flex gap-2">
- {[
- "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150",
- "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=150",
- "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=150",
- "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&q=80&w=150"
- ].map((url) => (
- <button
- key={url}
- type="button"
- onClick={() => setEditAvatar(url)}
- className={`relative rounded-full p-0.5 border-2 transition ${editAvatar === url ? "border-primary" : "border-transparent"}`}
- >
- <img src={url} className="w-8 h-8 rounded-full object-cover" />
- {editAvatar === url && (
- <div className="absolute -bottom-0.5 -right-0.5 bg-primary text-white rounded-full p-0.5 text-[6px]">✓</div>
- )}
- </button>
- ))}
- </div>
- </div>
  </div>
 
  <div className="flex gap-2 pt-2">

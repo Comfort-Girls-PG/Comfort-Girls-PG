@@ -6,7 +6,6 @@ export enum RoomType {
 
 export interface Roommate {
   name: string;
-  avatar: string;
   college: string;
   hobbies: string[];
 }
@@ -14,7 +13,6 @@ export interface Roommate {
 export interface RoomReview {
   id: string;
   author: string;
-  avatar: string;
   rating: number;
   date: string;
   comment: string;
@@ -156,9 +154,9 @@ export interface UserSession {
   email: string;
   phone: string;
   college: string;
-  avatar: string;
   documentVerified: boolean;
   status: "Resident" | "Visitor" | "None" | "Admin";
+  bookedRoomId?: string;
   notifications: { id: string; title: string; message: string; date: string; read: boolean }[];
 }
 

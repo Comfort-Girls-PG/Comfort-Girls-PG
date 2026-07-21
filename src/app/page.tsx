@@ -13,10 +13,12 @@ import { useRouter } from "next/navigation";
 import { useApp } from "../context/AppContext";
 import { MOCK_AMENITIES, DETAILED_NEARBY_PLACES, MOCK_TESTIMONIALS, MOCK_GALLERY, MOCK_FAQ } from "../lib/staticData";
 import { apiClient } from "../utils/apiClient";
+import { useToast } from "../context/ToastContext";
 
 export default function Home() {
  const router = useRouter();
  const { activeRooms, currentUser, setIsAuthOpen } = useApp();
+ const toast = useToast();
 
 
  // Visit Booking Modal State
@@ -29,7 +31,7 @@ export default function Home() {
  const handleVisitSubmit = (e: React.FormEvent) => {
  e.preventDefault();
  if (!visitDate || !visitTime || !visitReason.trim()) {
- alert("Please fill in all the visit booking details.");
+ toast.error("Please fill in all the visit booking details.");
  return;
  }
 
@@ -45,11 +47,11 @@ export default function Home() {
  setVisitDate("");
  setVisitTime("09:30 AM - 11:30 AM");
  setVisitReason("");
- alert("Your physical PG visit has been requested successfully! You can monitor the status on your Resident Dashboard.");
+ toast.success("Your physical PG visit has been requested successfully! You can monitor the status on your Resident Dashboard.");
  })
  .catch((err) => {
  setIsSubmittingVisit(false);
- alert("Failed to schedule visit: " + err.message);
+ toast.error("Failed to schedule visit: " + err.message);
  });
  };
 
@@ -513,7 +515,7 @@ export default function Home() {
  </div>
  <div className="flex gap-3">
  <button
- onClick={() => alert("Loading WebGL virtual walkthrough module... please open in new tab if requested.")}
+ onClick={() => toast.info("Loading WebGL virtual walkthrough module... please open in new tab if requested.")}
  className="p-3 px-5 bg-[#C65D21] hover:bg-[#a84d1a] transition-all text-sm font-bold rounded-xl flex items-center gap-1.5 cursor-pointer shadow-sm"
  >
  <Play className="w-4 h-4 fill-white" />
