@@ -41,7 +41,7 @@ export default function AdminPage() {
   }
 
   const handleApproveVisit = (id: string, adminMessage: string) => {
-    apiClient.put<Visit>(`/api/visits/${id}/status`, { status: "Approved", message: adminMessage })
+    apiClient.put<Visit>(`/api/visits/${id}`, { status: "Approved", adminMessage })
       .then((updatedVisit) => {
         const updated = activeVisits.map((v) => {
           if (v.id === id) {
