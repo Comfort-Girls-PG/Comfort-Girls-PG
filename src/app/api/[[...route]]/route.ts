@@ -179,7 +179,18 @@ export async function GET(request: Request, props: { params: Promise<{ route?: s
       }
       let bookings;
       if (activeUser.role === "Admin") {
-        bookings = await dbStore.bookings.find();
+        const rawList = await dbStore.bookings.find();
+        const enriched = [];
+        for (const b of rawList) {
+          const u = await dbStore.users.findById(b.userId);
+          enriched.push({
+            ...b,
+            userName: u ? u.name : "Unknown Visitor",
+            userEmail: u ? u.email : "",
+            userPhone: u ? u.phone : ""
+          });
+        }
+        bookings = enriched;
       } else {
         bookings = await dbStore.bookings.find({ userId: activeUser.id });
       }
@@ -493,9 +504,9 @@ export async function POST(request: Request, props: { params: Promise<{ route?: 
         return NextResponse.json({ success: false, message: "Access token missing or malformed." }, { status: 401 });
       }
 
-      const { roomId, sharingType, scheduleVisitDate, documentType, documentUrl, paidAmount, couponCode } = body;
-      if (!roomId || !sharingType) {
-        return NextResponse.json({ success: false, message: "Incomplete selection properties." }, { status: 400 });
+      const { roomId, sharingType, scheduleVisitDate, documentType, documentUrl } = body;
+      if (!roomId || !sharingType || !scheduleVisitDate) {
+        return NextResponse.json({ success: false, message: "Incomplete visit scheduling properties." }, { status: 400 });
       }
 
       const bookingId = `BKG-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -504,42 +515,43 @@ export async function POST(request: Request, props: { params: Promise<{ route?: 
         userId: activeUser.id,
         roomId,
         sharingType,
-        scheduleVisitDate: scheduleVisitDate || null,
+        scheduleVisitDate: scheduleVisitDate,
         documentType: documentType || "College ID",
         documentUrl: documentUrl || "https://example.com/uploaded-id.jpg",
-        paidAmount: paidAmount ? Number(paidAmount) : 10000,
-        couponCode: couponCode || "WELCOMESHIP",
-        paymentMethod: "UPI",
-        status: scheduleVisitDate ? "Visit Scheduled" : "Pending Approval",
-        invoiceNo: `INV-${Math.floor(10000 + Math.random() * 89999)}`,
+        status: "Visit Scheduled",
         createdAt: new Date().toISOString().split("T")[0]
       });
 
       const userObj = await dbStore.users.findById(activeUser.id);
       
       // User notification & email
-      await addNotification(
-        activeUser.id,
-        "Booking Requested",
-        `Your booking request reference is registered: ${bookingId}. Standard vetting pending.`
-      );
+      if (userObj) {
+        const updatedNotifications = [...(userObj.notifications || []), {
+          id: `not-${Date.now()}`,
+          title: "Visit Requested",
+          message: `Your visit request reference is registered: ${bookingId}. Standard vetting pending.`,
+          date: new Date().toISOString().split("T")[0],
+          read: false
+        }];
+        await dbStore.users.findByIdAndUpdate(activeUser.id, { notifications: updatedNotifications });
+      }
       
+      // Note: User status should not change to Resident until visit is complete and deposit is paid.
+      // Assuming visit booking doesn't make them a Resident immediately.
       await dbStore.users.findByIdAndUpdate(activeUser.id, {
-        status: "Resident",
-        bookedRoomId: roomId,
         documentVerified: true
       });
 
       // Add notification to Admin & email
       await addNotification(
         "usr-admin",
-        "New Booking Request",
-        `${userObj?.name || 'A user'} requested a room booking. Reference: ${bookingId}`
+        "New Visit Request",
+        `${userObj?.name || 'A user'} requested a physical visit. Reference: ${bookingId}`
       );
 
       return NextResponse.json({
         success: true,
-        message: "Booking request logged. Admin clearance initiated.",
+        message: "Visit request logged. Admin clearance initiated.",
         data: newBooking
       }, { status: 201 });
     }
@@ -723,7 +735,7 @@ export async function PUT(request: Request, props: { params: Promise<{ route?: s
       }
 
       const bookingId = route[1];
-      const { status } = body;
+      const { status, message } = body;
 
       const bkg = await dbStore.bookings.findById(bookingId);
       if (!bkg) {
@@ -732,10 +744,15 @@ export async function PUT(request: Request, props: { params: Promise<{ route?: s
 
       const updated = await dbStore.bookings.findByIdAndUpdate(bookingId, { status });
 
+      let notificationMsg = `Your booking ${bookingId} status is updated to: ${status}.`;
+      if (message) {
+        notificationMsg += ` Message from Admin: ${message}`;
+      }
+
       await addNotification(
         bkg.userId,
         "Booking Status Update",
-        `Your booking ${bookingId} status is updated to: ${status}.`
+        notificationMsg
       );
 
       return NextResponse.json({

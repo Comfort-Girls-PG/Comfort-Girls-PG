@@ -8,7 +8,7 @@ interface RoomDetailsPageProps {
  colleges: NearbyCollege[];
  currentUser: UserSession | null;
  onBack: () => void;
- onInitiateBooking: (room: Room, directBook: boolean) => void;
+ onScheduleVisit: (room: Room) => void;
  onOpenAuth: () => void;
 }
 
@@ -17,7 +17,7 @@ export default function RoomDetailsPage({
  colleges,
  currentUser,
  onBack,
- onInitiateBooking,
+ onScheduleVisit,
  onOpenAuth,
 }: RoomDetailsPageProps) {
  const [activeTab, setActiveTab] = useState<"about" | "roommates" | "reviews">("about");
@@ -306,25 +306,12 @@ export default function RoomDetailsPage({
  return;
  }
  // Simulate booking visit
- onInitiateBooking(room, false);
+ onScheduleVisit(room);
  }}
- className="flex-1 py-3.5 border border-primary/20 hover:border-primary/40 bg-primary/5 hover:bg-primary/10 text-primary rounded-xl font-display text-xs font-semibold transition-all cursor-pointer"
+ className="flex-1 py-3.5 border border-primary/20 hover:border-primary/40 bg-primary hover:bg-primary-dark text-white rounded-xl font-display text-xs font-semibold transition-all cursor-pointer"
  id="btn-schedule-visit"
  >
  Schedule Free Visit
- </button>
- <button
- onClick={() => {
- if (!currentUser) {
- onOpenAuth();
- return;
- }
- onInitiateBooking(room, true);
- }}
- className="flex-1 py-3.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-display text-xs font-semibold transition-all shadow-md shadow-primary/10 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer"
- id="btn-book-now"
- >
- Book bed instantly
  </button>
  </div>
  </div>

@@ -37,8 +37,8 @@ export default function RoomDetailsPageWrapper() {
  router.push("/rooms");
  };
 
- const handleInitiateBooking = (r: typeof room, directBook: boolean) => {
- router.push(`/bookings?roomId=${r.id}&direct=${directBook}`);
+ const handleScheduleVisit = (r: typeof room) => {
+ router.push(`/bookings?roomId=${r.id}`);
  };
 
  return (
@@ -47,7 +47,7 @@ export default function RoomDetailsPageWrapper() {
  colleges={MOCK_COLLEGES}
  currentUser={currentUser}
  onBack={handleBack}
- onInitiateBooking={handleInitiateBooking}
+ onScheduleVisit={handleScheduleVisit}
  onOpenAuth={() => setIsAuthOpen(true)}
  />
  );

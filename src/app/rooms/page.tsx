@@ -209,18 +209,7 @@ function RoomsContent() {
                     >
                       Details
                     </button>
-                    <button
-                      onClick={() => {
-                        if (!currentUser) {
-                          setIsAuthOpen(true);
-                          return;
-                        }
-                        router.push(`/bookings?roomId=${room.id}&direct=true`);
-                      }}
-                      className="px-6 py-2 bg-[#D96B27] hover:bg-[#C65D21] text-white rounded-xl text-sm font-bold cursor-pointer transition-colors"
-                    >
-                      Book Bed
-                    </button>
+
                   </div>
                 </div>
               </div>

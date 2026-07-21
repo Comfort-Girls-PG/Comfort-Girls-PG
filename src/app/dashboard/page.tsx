@@ -59,7 +59,7 @@ export default function DashboardPage() {
  <UserDashboard
  currentUser={currentUser}
  rooms={activeRooms}
- activeBooking={activeBooking}
+ activeBookings={activeBookings}
  onLogout={handleLogout}
  onGoHome={handleGoHome}
  onUpdateUser={handleUpdateUser}
