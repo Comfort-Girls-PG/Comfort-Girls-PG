@@ -82,7 +82,6 @@ export async function initializeDatabase() {
         avatar TEXT,
         "documentVerified" BOOLEAN DEFAULT false,
         status VARCHAR(255) DEFAULT 'Resident',
-        "bookedRoomId" VARCHAR(255),
         notifications JSONB DEFAULT '[]'::jsonb,
         "emailVerified" BOOLEAN DEFAULT false,
         "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
@@ -118,11 +117,7 @@ export async function initializeDatabase() {
         "scheduleVisitDate" VARCHAR(255),
         "documentType" VARCHAR(255),
         "documentUrl" TEXT,
-        "paidAmount" NUMERIC,
-        "couponCode" VARCHAR(255),
-        "paymentMethod" VARCHAR(255),
         status VARCHAR(255) DEFAULT 'Pending',
-        "invoiceNo" VARCHAR(255),
         "createdAt" VARCHAR(255)
       )
     `);
@@ -566,14 +561,14 @@ async function seedPostgresDatabase(activePool: pg.Pool) {
       const hashedStudentPassword = await bcrypt.hash("student123", 10);
 
       await activePool.query(`
-        INSERT INTO users (id, name, email, "passwordHash", phone, college, avatar, "documentVerified", status, "bookedRoomId", "emailVerified")
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-      `, ["usr-admin", "Admin", "contact@comfortgirlspg.live", hashedAdminPassword, "9876541201", "Comfort PG Warden Admin", "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=150", true, "Admin", null, true]);
+        INSERT INTO users (id, name, email, "passwordHash", phone, college, avatar, "documentVerified", status, "emailVerified")
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      `, ["usr-admin", "Admin", "contact@comfortgirlspg.live", hashedAdminPassword, "9876541201", "Comfort PG Warden Admin", "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=150", true, "Admin", true]);
 
       await activePool.query(`
-        INSERT INTO users (id, name, email, "passwordHash", phone, college, avatar, "documentVerified", status, "bookedRoomId", "emailVerified")
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-      `, ["usr-student", "Sheel Ganvir", "student@comfortpg.com", hashedStudentPassword, "+91 77777 88888", "Symbiosis corridor", "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150", true, "Resident", "suite-double-ac", true]);
+        INSERT INTO users (id, name, email, "passwordHash", phone, college, avatar, "documentVerified", status, "emailVerified")
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      `, ["usr-student", "Sheel Ganvir", "student@comfortpg.com", hashedStudentPassword, "+91 77777 88888", "Symbiosis corridor", "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150", true, "Resident", true]);
       console.log("Seeded Postgres users.");
     }
 
@@ -632,9 +627,9 @@ async function seedPostgresDatabase(activePool: pg.Pool) {
     const bookingCountRes = await activePool.query("SELECT COUNT(*) FROM bookings");
     if (parseInt(bookingCountRes.rows[0].count, 10) === 0) {
       await activePool.query(`
-        INSERT INTO bookings (id, "userId", "roomId", "sharingType", "scheduleVisitDate", "documentType", "documentUrl", "paidAmount", "couponCode", "paymentMethod", status, "invoiceNo", "createdAt")
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-      `, ["BKG-99", "usr-student", "suite-double-ac", "Double Sharing", null, "Aadhaar Card", "https://example.com/dummy-aadhaar.pdf", 11000, "WELCOME", "UPI", "Active", "INV-8531", "2026-06-18"]);
+        INSERT INTO bookings (id, "userId", "roomId", "sharingType", "scheduleVisitDate", "documentType", "documentUrl", status, "createdAt")
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      `, ["BKG-99", "usr-student", "suite-double-ac", "Double Sharing", "2026-06-25", "Aadhaar Card", "https://example.com/dummy-aadhaar.pdf", "Visit Scheduled", "2026-06-18"]);
       console.log("Seeded Postgres bookings.");
     }
 
@@ -660,7 +655,6 @@ async function seedLocalJsonDatabase() {
         avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=150",
         documentVerified: true,
         status: "Admin",
-        bookedRoomId: null,
         emailVerified: true,
         notifications: [
           { id: "not-01", title: "Console Loaded", message: "Warden privilege keys authorized successfully.", date: new Date().toISOString().split("T")[0], read: false }
@@ -677,7 +671,6 @@ async function seedLocalJsonDatabase() {
         avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150",
         documentVerified: true,
         status: "Resident",
-        bookedRoomId: "suite-double-ac",
         emailVerified: true,
         notifications: [
           { id: "not-02", title: "Room Allotted", message: "Your luxury room allotment is active! Safe stay journey activated.", date: new Date().toISOString().split("T")[0], read: false }
@@ -722,14 +715,10 @@ async function seedLocalJsonDatabase() {
         userId: "usr-student",
         roomId: "suite-double-ac",
         sharingType: "Double Sharing",
-        scheduleVisitDate: null,
+        scheduleVisitDate: "2026-06-25",
         documentType: "Aadhaar Card",
         documentUrl: "https://example.com/dummy-aadhaar.pdf",
-        paidAmount: 11000,
-        couponCode: "WELCOME",
-        paymentMethod: "UPI",
-        status: "Active",
-        invoiceNo: "INV-8531",
+        status: "Visit Scheduled",
         createdAt: "2026-06-18"
       });
     }

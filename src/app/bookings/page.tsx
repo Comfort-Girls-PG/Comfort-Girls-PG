@@ -12,7 +12,6 @@ function BookingsContent() {
  const { activeRooms, currentUser, setCurrentUser, activeBookings, setActiveBookings, setActiveRooms, setIsAuthOpen } = useApp();
 
  const roomId = searchParams.get("roomId");
- const directBook = searchParams.get("direct") !== "false"; // default is true
 
  const room = activeRooms.find((r) => r.id === roomId);
 
@@ -58,41 +57,9 @@ function BookingsContent() {
  }
 
  const handleBookingComplete = (newBooking: Booking) => {
- // Add to bookings index
+ // Add to visits index
  setActiveBookings([newBooking, ...activeBookings]);
  
- // Update local user context status
- if (currentUser) {
- const updatedUser: UserSession = {
- ...currentUser,
- status: "Resident",
- bookedRoomId: newBooking.roomId,
- documentVerified: true
- };
- setCurrentUser(updatedUser);
- }
-
- // Update room vacant units
- const updatedRooms = activeRooms.map((r) => {
- if (r.id === newBooking.roomId) {
- return {
- ...r,
- availability: Math.max(0, r.availability - 1),
- roommates: [
- ...r.roommates,
- {
- name: currentUser.name,
- avatar: currentUser.avatar || "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150",
- college: currentUser.college || "Technology & Design Institute",
- hobbies: ["Photography", "Academics", "Music"]
- }
- ]
- };
- }
- return r;
- });
- setActiveRooms(updatedRooms);
-
  // Swap to user dashboard automatically
  router.push("/dashboard");
  if (typeof window !== "undefined") {
@@ -108,7 +75,6 @@ function BookingsContent() {
  <div className="min-h-screen py-10 bg-slate-50/30 ">
  <BookingFlow
  room={room}
- directBook={directBook}
  currentUser={currentUser}
  onBookingComplete={handleBookingComplete}
  onCancel={handleCancel}

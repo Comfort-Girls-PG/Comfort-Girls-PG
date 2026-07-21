@@ -480,18 +480,6 @@ export default function Home() {
  >
  Details
  </button>
- <button
- onClick={() => {
- if (!currentUser) {
- setIsAuthOpen(true);
- return;
- }
- router.push(`/bookings?roomId=${room.id}&direct=true`);
- }}
- className="p-2 px-4 bg-[#C65D21] hover:bg-[#a84d1a] text-white rounded-xl text-xs font-bold shadow-sm cursor-pointer transition-colors"
- >
- Book Bed
- </button>
  </div>
  </div>
  </div>
@@ -789,7 +777,7 @@ export default function Home() {
  </div>
 
  <div className="flex flex-wrap justify-center gap-3 mb-10">
- {["General", "Safety", "Mess", "Booking & Deposit"].map((tab) => (
+ {["General", "Safety", "Mess", "Deposit & Rules"].map((tab) => (
  <button
  key={tab}
  onClick={() => {
@@ -801,7 +789,7 @@ export default function Home() {
  : "border-[#D9CDBF] text-[#4A3728] hover:bg-[#F2EAE0]"
  }`}
  >
- {tab === "Mess" ? "Room" : tab === "Booking & Deposit" ? "Booking & Payment" : tab}
+ {tab === "Mess" ? "Room" : tab === "Deposit & Rules" ? "Deposit & Rules" : tab}
  </button>
  ))}
  </div>

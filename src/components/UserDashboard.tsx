@@ -6,7 +6,7 @@ import { apiClient } from "../utils/apiClient";
 interface UserDashboardProps {
  currentUser: UserSession;
  rooms: Room[];
- activeBooking: Booking | null;
+ activeBookings: Booking[];
  onLogout: () => void;
  onGoHome: () => void;
  onUpdateUser?: (updated: UserSession) => void;
@@ -15,7 +15,7 @@ interface UserDashboardProps {
 export default function UserDashboard({
  currentUser,
  rooms,
- activeBooking,
+ activeBookings,
  onLogout,
  onGoHome,
  onUpdateUser,
@@ -29,24 +29,12 @@ export default function UserDashboard({
  const [editAvatar, setEditAvatar] = useState(currentUser.avatar || "");
  const [isSaving, setIsSaving] = useState(false);
 
- const [visits, setVisits] = useState<any[]>([]);
-
  useEffect(() => {
  setEditName(currentUser.name || "");
  setEditPhone(currentUser.phone || "");
  setEditCollege(currentUser.college || "");
  setEditAvatar(currentUser.avatar || "");
  }, [currentUser]);
-
- useEffect(() => {
- apiClient.get<any[]>("/api/visits")
- .then((data) => {
- if (data) {
- setVisits(data);
- }
- })
- .catch((err) => console.warn("Could not load visit requests:", err));
- }, []);
 
  const handleUpdateProfile = (e: React.FormEvent) => {
  e.preventDefault();
@@ -79,7 +67,7 @@ export default function UserDashboard({
  });
  };
 
- const currentRoom = rooms.find(r => r.id === activeBooking?.roomId) || rooms[0];
+ const currentRoom = rooms.find(r => r.id === activeBookings[0]?.roomId) || rooms[0];
 
  return (
  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 transition-all">
@@ -325,48 +313,43 @@ export default function UserDashboard({
  </p>
  </div>
 
- {visits.length === 0 ? (
+ {activeBookings.length === 0 ? (
  <p className="text-xs text-slate-500 font-light italic p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-center">
- No physical visits scheduled yet. Click "Book Visit" on the home page to request a tour.
+ No physical visits scheduled yet. Click "Schedule Free Visit" on the home page to request a tour.
  </p>
  ) : (
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
- {visits.map((visit) => (
- <div 
- key={visit.id} 
- className="p-5 rounded-2xl border border-slate-150 bg-slate-50/50 space-y-3 font-sans text-xs flex flex-col justify-between"
- >
- <div className="flex justify-between items-start">
- <div>
- <span className="text-[9px] font-mono text-slate-400 block">VISITATION PASS</span>
- <strong className="text-slate-800 block text-xs">{visit.date}</strong>
- <span className="text-[10px] text-slate-500 font-mono pt-0.5 block">Time Slot: {visit.time}</span>
- </div>
- <span className={`py-0.5 px-2.5 rounded font-mono text-[9px] font-bold uppercase ${
- visit.status === "Approved"
- ? "bg-emerald-500/10 text-emerald-600 "
- : visit.status === "Rejected"
- ? "bg-rose-500/10 text-rose-500"
- : "bg-amber-500/10 text-amber-600 animate-pulse"
- }`}>
- {visit.status || "Pending"}
- </span>
- </div>
+ {activeBookings.map((visit: Booking) => {
+    const roomInfo = rooms.find(r => r.id === visit.roomId);
+    return (
+  <div 
+  key={visit.id} 
+  className="p-5 rounded-2xl border border-slate-150 bg-slate-50/50 space-y-3 font-sans text-xs flex flex-col justify-between"
+  >
+  <div className="flex justify-between items-start">
+  <div>
+  <span className="text-[9px] font-mono text-slate-400 block">VISIT REQUEST REF: {visit.id}</span>
+  <strong className="text-slate-800 block text-xs">{visit.scheduleVisitDate || "Pending"}</strong>
+  <span className="text-[10px] text-slate-500 font-mono pt-0.5 block">Requested On: {visit.createdAt}</span>
+  </div>
+  <span className={`py-0.5 px-2.5 rounded font-mono text-[9px] font-bold uppercase ${
+  visit.status === "Visit Scheduled"
+  ? "bg-emerald-500/10 text-emerald-600 "
+  : visit.status === "Rejected"
+  ? "bg-rose-500/10 text-rose-500"
+  : "bg-amber-500/10 text-amber-600 animate-pulse"
+  }`}>
+  {visit.status || "Pending Approval"}
+  </span>
+  </div>
 
- <div className="space-y-1 pb-1 text-slate-650 ">
- <p className="font-semibold text-slate-700 ">Reason for visit:</p>
- <p className="font-light italic">"{visit.reason}"</p>
- </div>
-
- {visit.adminMessage && (
- <div className="p-3 bg-primary/5 border border-primary/10 rounded-xl space-y-1">
- <span className="text-[9px] font-mono text-primary block font-bold">WARDEN RESPONSE MESSAGE</span>
- <p className="text-slate-655 font-light">"{visit.adminMessage}"</p>
- </div>
- )}
- </div>
- ))}
- </div>
+  <div className="space-y-1 pb-1 text-slate-650 ">
+  <p className="font-semibold text-slate-700 ">Requested Suite:</p>
+  <p className="font-light italic">{roomInfo?.name || visit.roomId} ({visit.sharingType})</p>
+  </div>
+  </div>
+  )})}
+  </div>
  )}
  </div>
  )}

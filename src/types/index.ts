@@ -91,14 +91,10 @@ export interface Booking {
   userId: string;
   roomId: string;
   sharingType: RoomType;
-  scheduleVisitDate: string | null; // null if direct booking
+  scheduleVisitDate: string;
   documentType: string;
   documentUrl: string;
-  paidAmount: number;
-  couponCode: string;
-  paymentMethod: "UPI" | "Card" | "Net Banking";
-  status: "Pending Approval" | "Visit Scheduled" | "Approved" | "Completed" | "Active";
-  invoiceNo: string;
+  status: "Pending Approval" | "Visit Scheduled" | "Approved" | "Completed" | "Active" | "Rejected";
   createdAt: string;
 }
 
@@ -152,7 +148,6 @@ export interface UserSession {
   avatar: string;
   documentVerified: boolean;
   status: "Resident" | "Visitor" | "None" | "Admin";
-  bookedRoomId: string | null;
   notifications: { id: string; title: string; message: string; date: string; read: boolean }[];
 }
 
@@ -160,5 +155,5 @@ export interface FAQItem {
   id: string;
   question: string;
   answer: string;
-  category: "General" | "Safety" | "Mess" | "Booking & Deposit";
+  category: "General" | "Safety" | "Mess" | "Deposit & Rules";
 }

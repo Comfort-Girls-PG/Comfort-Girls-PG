@@ -92,8 +92,8 @@ export const MOCK_ROOMS: Room[] = [
     type: RoomType.Double,
     price: 10000,
     deposit: 18000,
-    priceRange: "₹10,000 - ₹14,000",
-    depositRange: "₹18,005 - ₹22,000",
+    priceRange: "₹10,000",
+    depositRange: "₹18,000",
     size: "220 - 240 sq ft",
     availability: 4,
     images: [
@@ -404,24 +404,24 @@ export const MOCK_FAQ: FAQItem[] = [
     id: "fq-3",
     question: "How does security document verification work?",
     answer: "We mandate Government ID verification (Aadhaar/Passport) and College ID or Employment allocation documentation. You can upload digital copies inside our clean digital onboarding flow or complete it on site. Digital approvals finish within 12 hours.",
-    category: "Booking & Deposit"
+    category: "Deposit & Rules"
   },
   {
     id: "fq-4",
     question: "Is there an advance notification required before moving out?",
     answer: "Yes, we require a strict 30-day notice period submitted easily on your student dashboard. This allows our accounting module to process your full security deposit refunded in max 7 bank days from exit date.",
-    category: "Booking & Deposit"
+    category: "Deposit & Rules"
   },
   {
     id: "fq-6",
     question: "How do security deposits compare, and is there any registration surcharge?",
     answer: "Our security deposit is totally transparent, roughly 1.5 months of your monthly rent, totally refundable. We protect our residents by charging 0 extra administration fees and zero brokerage.",
-    category: "Booking & Deposit"
+    category: "Deposit & Rules"
   },
   {
     id: "fq-bd1",
     question: "Are there any extra maintenance or electricity charges?",
     answer: "No, there are no hidden maintenance fees. Room cleaning and high-speed wifi are included. Electricity charges are calculated transparently based on individual sub-meter readings for AC usage.",
-    category: "Booking & Deposit"
+    category: "Deposit & Rules"
   }
 ];

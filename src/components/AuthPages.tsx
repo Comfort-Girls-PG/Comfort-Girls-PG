@@ -31,50 +31,6 @@ export default function AuthPages() {
  const [debugOtp, setDebugOtp] = useState<string | null>(null);
  const [debugLink, setDebugLink] = useState<string | null>(null);
  const [otpMode, setOtpMode] = useState<"register" | "forgot">("register");
- const [showDiagnostics, setShowDiagnostics] = useState(false);
- const [diagResult, setDiagResult] = useState<{
- backendOk: boolean;
- dbConnected: boolean;
- dbMode: string;
- dbConfigured: boolean;
- checking: boolean;
- error: string | null;
- } | null>(null);
-
- const runDiagnostics = async () => {
- setDiagResult({
- backendOk: false,
- dbConnected: false,
- dbMode: "None",
- dbConfigured: false,
- checking: true,
- error: null
- });
- try {
- const res = await fetch("/api/db-status");
- if (!res.ok) {
- throw new Error(`Server returned status ${res.status}`);
- }
- const data = await res.json();
- setDiagResult({
- backendOk: true,
- dbConnected: !!data.connected,
- dbMode: data.mode || "PostgreSQL",
- dbConfigured: !!data.configured,
- checking: false,
- error: null
- });
- } catch (err: any) {
- setDiagResult({
- backendOk: false,
- dbConnected: false,
- dbMode: "None",
- dbConfigured: false,
- checking: false,
- error: err.message || "Failed to reach backend."
- });
- }
- };
 
  const handleAutofillDebugOtp = () => {
  if (debugOtp && debugOtp.length === 4) {

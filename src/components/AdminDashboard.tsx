@@ -5,19 +5,15 @@ import { ClipboardList, Users, BarChart3, Contact, BookOpenCheck } from "lucide-
 
 interface AdminDashboardProps {
  rooms: Room[];
- bookings: Booking[];
- visits: any[];
- onApproveBooking: (id: string) => void;
+ visits: Booking[];
  onApproveVisit: (id: string, message: string) => void;
 }
 
-type AdminTab = "overview" | "residents" | "bookings" | "visits" | "staff";
+type AdminTab = "overview" | "residents" | "visits" | "staff";
 
 export default function AdminDashboard({
  rooms,
- bookings,
  visits,
- onApproveBooking,
  onApproveVisit,
 }: AdminDashboardProps) {
  const [activeTab, setActiveTab] = useState<AdminTab>("overview");
@@ -25,11 +21,11 @@ export default function AdminDashboard({
  
  // Manage Warden states
  const [residents, setResidents] = useState([
- { id: "res-1", name: "Ananya Iyer", email: "ananya@student.edu", room: "103", college: "Business & Arts", docStatus: "Verified" },
- { id: "res-2", name: "Priya Sharma", email: "priya.sharma@student.edu", room: "305", college: "Medical & Allied", docStatus: "Verified" },
- { id: "res-3", name: "Meera Deshmukh", email: "meera@student.edu", room: "204", college: "Engineering", docStatus: "Verified" },
- { id: "res-4", name: "Sneha Sen", email: "sneha_sen@student.edu", room: "305", college: "Computer Science", docStatus: "Verified" },
- { id: "res-5", name: "Sanya Roy", email: "sanya@student.edu", room: "306", college: "Management & Law", docStatus: "Verification Pending" }
+ { id: "res-1", name: "Ananya Sharma", email: "ananya.sharma@student.edu", room: "103", college: "Business & Arts", docStatus: "Verified" },
+ { id: "res-2", name: "Priya Singh", email: "priya.singh@student.edu", room: "305", college: "Medical & Allied", docStatus: "Verified" },
+ { id: "res-3", name: "Neha Gupta", email: "neha.gupta@student.edu", room: "204", college: "Engineering", docStatus: "Verified" },
+ { id: "res-4", name: "Pooja Verma", email: "pooja.verma@student.edu", room: "305", college: "Computer Science", docStatus: "Verified" },
+ { id: "res-5", name: "Riya Mehta", email: "riya.mehta@student.edu", room: "306", college: "Management & Law", docStatus: "Verification Pending" }
  ]);
 
  const [staff, setStaff] = useState([
@@ -50,11 +46,8 @@ export default function AdminDashboard({
  const occupiedBeds = rooms.reduce((acc, r) => acc + r.roommates.length, 0);
  const occupancyPercentage = Math.round((occupiedBeds / totalBeds) * 100);
  
- // Total pending room bookings approvals
- const pendingBookingsCount = bookings.filter((b) => b.status === "Visit Scheduled" || b.status === "Pending Approval").length;
-
  // Total pending physical visits approvals
- const pendingVisitsCount = visits.filter((v) => v.status === "Pending" || v.status === "Upcoming" || !v.status).length;
+ const pendingVisitsCount = visits.filter((v) => v.status === "Visit Scheduled" || v.status === "Pending Approval").length;
 
  return (
  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 transition-colors">
@@ -95,7 +88,6 @@ export default function AdminDashboard({
  {[
  { label: "Executive Analytics", tab: "overview" as const, icon: BarChart3 },
  { label: "Resident Directory", tab: "residents" as const, icon: Users },
- { label: " visitation Approvings", tab: "bookings" as const, icon: BookOpenCheck },
  { label: "Physical Visit Requests", tab: "visits" as const, icon: ClipboardList },
  { label: "On Site Staff registry", tab: "staff" as const, icon: Contact },
  ].map((item) => {
@@ -133,19 +125,14 @@ export default function AdminDashboard({
  className="space-y-8"
  >
  {/* Metrics top widget boxes */}
- <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-150 ">
  <span className="text-[9px] font-mono uppercase tracking-widest text-slate-550 block">Occupied Bed Slots</span>
  <h3 className="text-xl font-display font-bold text-slate-850 pt-1">{occupiedBeds} Beds</h3>
  <span className="text-[10px] text-slate-500">{totalBeds - occupiedBeds} units vacant</span>
  </div>
  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-150 ">
- <span className="text-[9px] font-mono uppercase tracking-widest text-slate-550 block">Suite Bookings</span>
- <h3 className="text-xl font-display font-bold text-slate-850 pt-1">{pendingBookingsCount} Pending</h3>
- <span className="text-[10px] text-primary animate-pulse">Needs clearance attention</span>
- </div>
- <div className="p-4 rounded-2xl bg-slate-50 border border-slate-150 ">
- <span className="text-[9px] font-mono uppercase tracking-widest text-slate-550 block">Physical visit requests</span>
+ <span className="text-[9px] font-mono uppercase tracking-widest text-slate-550 block">Physical Visit Tours</span>
  <h3 className="text-xl font-display font-bold text-slate-850 pt-1">{pendingVisitsCount} Pending</h3>
  <span className="text-[10px] text-emerald-505 animate-pulse">Tour clearances</span>
  </div>
@@ -259,73 +246,6 @@ export default function AdminDashboard({
  </motion.div>
  )}
 
- {/* View 3: Visitation Approvings */}
- {activeTab === "bookings" && (
- <motion.div
- key="tab-bookings"
- initial={{ opacity: 0, y: 10 }}
- animate={{ opacity: 1, y: 0 }}
- exit={{ opacity: 0 }}
- className="space-y-6"
- >
- <div className="space-y-1">
- <h3 className="font-display font-bold text-lg text-slate-850 ">Active visitation list approvals</h3>
- <p className="text-xs text-slate-500 font-light font-sans font-mono text-[11px]">Approve scheduled host visits and secure digital escrows.</p>
- </div>
-
- {bookings.length === 0 ? (
- <div className="flex flex-col items-center justify-center p-12 text-center text-slate-400 font-light bg-slate-50 border border-slate-100 rounded-2xl">
- <ClipboardList className="w-8 h-8 text-slate-350 mb-3" />
- <p className="text-sm font-medium">No active approvals pending</p>
- <p className="text-xs">All scheduled slot walk-throughs are completely green!</p>
- </div>
- ) : (
- <div className="space-y-3.5">
- {bookings.map((b) => (
- <div key={b.id} className="p-4 rounded-xl border border-slate-150 space-y-3 font-mono text-xs">
- <div className="flex justify-between items-center">
- <span className="font-bold text-slate-500">REF: {b.id}</span>
- <span className={`py-0.5 px-2.5 rounded font-bold text-[9px] uppercase ${
- b.status === "Approved" || b.status === "Completed"
- ? "bg-emerald-500/10 text-emerald-600 "
- : "bg-amber-500/10 text-amber-600 animate-pulse"
- }`}>
- {b.status}
- </span>
- </div>
-
- <div className="text-left font-sans text-xs text-slate-650 space-y-1">
- <p>Occupant Category: <strong className="text-slate-850 ">{b.sharingType} suite</strong></p>
- <p>Paid Holding reservation fee: <strong className="text-emerald-500">₹{b.paidAmount.toLocaleString("en-IN")}</strong></p>
- <p>Documents categorization: {b.documentType}</p>
- {b.scheduleVisitDate && (
- <p className="text-amber-500 font-semibold font-mono text-[10px]">Visitations Slot schedule: {b.scheduleVisitDate}</p>
- )}
- </div>
-
- {b.status !== "Approved" && b.status !== "Completed" && (
- <div className="flex gap-2.5 pt-1.5">
- <button
- onClick={() => onApproveBooking(b.id)}
- className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-sans text-xs font-semibold rounded-lg transition-colors cursor-pointer"
- >
- Approve & Notify
- </button>
- <button
- onClick={() => alert("Visitations re-dispatched into local parent verification check chains.")}
- className="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 font-sans text-xs font-semibold rounded-lg transition-colors cursor-pointer"
- >
- Reschedule Room Code
- </button>
- </div>
- )}
- </div>
- ))}
- </div>
- )}
- </motion.div>
- )}
-
  {/* View 4: Physical Visit Requests */}
  {activeTab === "visits" && (
  <motion.div
@@ -348,12 +268,14 @@ export default function AdminDashboard({
  </div>
  ) : (
  <div className="space-y-3.5 pt-2">
- {visits.map((v) => (
+ {visits.map((v) => {
+ const roomInfo = rooms.find(r => r.id === v.roomId);
+ return (
  <div key={v.id} className="p-4 rounded-xl border border-slate-150 space-y-3 font-sans text-xs flex flex-col justify-between">
  <div className="flex justify-between items-center font-mono">
- <span className="font-bold text-slate-500">REF: VISIT-{v.id}</span>
+ <span className="font-bold text-slate-500">REF: {v.id}</span>
  <span className={`py-0.5 px-2.5 rounded font-bold text-[9px] uppercase ${
- v.status === "Approved"
+ v.status === "Visit Scheduled"
  ? "bg-emerald-500/10 text-emerald-600 "
  : "bg-amber-500/10 text-amber-600 animate-pulse"
  }`}>
@@ -362,30 +284,23 @@ export default function AdminDashboard({
  </div>
 
  <div className="text-left space-y-1 text-slate-650 ">
- <h4 className="font-semibold text-slate-850 text-sm leading-snug">{v.userName}</h4>
- <p className="font-mono text-[10px] text-slate-500">{v.userEmail} | {v.userPhone}</p>
+ <h4 className="font-semibold text-slate-850 text-sm leading-snug">{(v as any).userName}</h4>
+ <p className="font-mono text-[10px] text-slate-500">{(v as any).userEmail} | {(v as any).userPhone}</p>
  <div className="grid grid-cols-2 gap-2 pt-1 pb-1 font-mono text-[10px] text-slate-700 ">
- <p>Date: <strong className="text-slate-900 ">{v.date}</strong></p>
- <p>Time Slot: <strong className="text-slate-900 ">{v.time}</strong></p>
+ <p>Requested Room: <strong className="text-slate-900 ">{roomInfo?.name || v.roomId} ({v.sharingType})</strong></p>
+ <p>Time Slot: <strong className="text-slate-900 ">{v.scheduleVisitDate}</strong></p>
  </div>
- <p className="pt-1 font-light italic">Reason for visit: "{v.reason}"</p>
- {v.adminMessage && (
- <p className="text-[10px] text-emerald-500 font-semibold pt-1 font-sans">Response sent: "{v.adminMessage}"</p>
- )}
  </div>
 
  {v.status !== "Approved" && (
  <div className="space-y-2 pt-2 border-t border-slate-100 ">
- <label className="block text-[9px] font-mono font-bold uppercase text-slate-400 tracking-wider">
- Response message / Warden notes
- </label>
- <div className="flex gap-2">
+ <div className="flex flex-col gap-2">
  <input
  type="text"
- placeholder="e.g. Sure, see you at 2 PM! - Warden"
+ placeholder="Add an optional message..."
  value={visitMessages[v.id] || ""}
  onChange={(e) => setVisitMessages({ ...visitMessages, [v.id]: e.target.value })}
- className="flex-grow text-xs font-semibold px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-hidden focus:border-primary text-slate-800 "
+ className="w-full text-xs p-2 bg-white border border-slate-200 rounded-lg outline-hidden focus:border-primary text-slate-800"
  />
  <button
  onClick={() => {
@@ -394,13 +309,13 @@ export default function AdminDashboard({
  }}
  className="px-4 py-2 bg-primary hover:bg-primary-dark text-white font-sans text-xs font-semibold rounded-lg transition-colors cursor-pointer shrink-0"
  >
- Approve & Message
+ Approve Visit Request
  </button>
  </div>
  </div>
  )}
  </div>
- ))}
+ )})}
  </div>
  )}
  </motion.div>
