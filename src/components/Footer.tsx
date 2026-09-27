@@ -103,7 +103,7 @@ export default function Footer() {
             <div className="flex items-start gap-3 text-sm font-medium">
               <MapPin className="w-5 h-5 text-[#D96B27] shrink-0 mt-0.5" />
               <span>
-                Comfort Girls PG, A-33, 7th Cross St, Block A, Alpha I, Greater Noida, Uttar Pradesh 201310
+                Comfort Girls PG, 7th Cross St, Block A, Alpha I, Greater Noida, Uttar Pradesh 201310
               </span>
             </div>
             <div className="flex items-center gap-3 text-sm font-medium">

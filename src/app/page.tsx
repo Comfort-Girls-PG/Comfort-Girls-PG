@@ -850,7 +850,7 @@ export default function Home() {
  rel="noopener noreferrer"
  className="hover:underline transition-colors"
  >
- A-33, 7th Cross St, Block A, Alpha I, Greater Noida, Uttar Pradesh 201310
+ 7th Cross St, Block A, Alpha I, Greater Noida, Uttar Pradesh 201310
  </a>
  </p>
  </div>
