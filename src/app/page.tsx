@@ -883,11 +883,11 @@ export default function Home() {
 
  <div className="lg:col-span-8 rounded-[32px] overflow-hidden border border-[#F5E2D3] min-h-[400px] relative shadow-sm">
  <iframe
- src="https://maps.google.com/maps?q=A-33,%207th%20Cross%20St,%20Block%20A,%20Alpha%20I,%20Greater%20Noida,%20Uttar%20Pradesh%20201310&t=&z=15&ie=UTF8&iwloc=&output=embed"
+ src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3506.8067342470504!2d77.50632185518445!3d28.48536642623507!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cea6691611aa7%3A0x5bc6ed087dc0874d!2s7th%20Cross%20St%2C%20Greater%20Noida%2C%20Uttar%20Pradesh%20201310%2C%20India!5e0!3m2!1sen!2sus!4v1790490237349!5m2!1sen!2sus"
  className="w-full h-full border-none pointer-events-auto"
  allowFullScreen={true}
  loading="lazy"
- referrerPolicy="no-referrer-when-downgrade"
+ referrerPolicy="strict-origin-when-cross-origin"
  />
  </div>
  </div>
