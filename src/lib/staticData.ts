@@ -226,7 +226,6 @@ export const MOCK_TESTIMONIALS: Testimonial[] = [
 
 export const MOCK_GALLERY: GalleryItem[] = [
   { id: "g-1", title: "Premium Double Sharing Room", category: "Rooms", imageUrl: "https://lh3.googleusercontent.com/d/1zse7mJuhjmUzMr1wgNc74k1wZXpc34rg" },
-  { id: "g-2", title: "Scenic Balcony Area", category: "Balcony", imageUrl: "https://lh3.googleusercontent.com/d/1ylk-KbkSXE6MFVqhw3url208fNmvPxxR" },
   { id: "g-3", title: "Cozy Bedroom Layout", category: "Rooms", imageUrl: "https://lh3.googleusercontent.com/d/1y2vETxeM1JrPpKqpL9bILVrxHkLnlg7k" },
   { id: "g-4", title: "Comfort Single Bed Setup", category: "Rooms", imageUrl: "https://lh3.googleusercontent.com/d/1uZ6AY4vGpbpyJqpTxudWbmXi_oVWJfLp" },
   { id: "g-5", title: "Premium Room Interior", category: "Rooms", imageUrl: "https://lh3.googleusercontent.com/d/1tfgK68mlYYR20SzMhtOnUqI1xv7KorTo" },
@@ -236,9 +235,7 @@ export const MOCK_GALLERY: GalleryItem[] = [
   { id: "g-9", title: "High-Efficiency Split AC", category: "Amenities", imageUrl: "https://lh3.googleusercontent.com/d/1r86Va5JgoWe8r7nBmeXnPHxqk2EDRPG2" },
   { id: "g-10", title: "Spacious Student Room View", category: "Rooms", imageUrl: "https://lh3.googleusercontent.com/d/1qMg1Rql1q9mew7PD9JZNJXcHCSGd4Ezr" },
   { id: "g-11", title: "Clean Shared Kitchen Space", category: "Kitchen", imageUrl: "https://lh3.googleusercontent.com/d/1q3wvVe0j1EgkmPWHGq0OIof8f72k0-gw" },
-  { id: "g-12", title: "Attached Balcony Sitout", category: "Balcony", imageUrl: "https://lh3.googleusercontent.com/d/1ozszK3nUlN6wcWn84INJ3hCYu6vj2iJQ" },
   { id: "g-13", title: "Premium Double Bed Suite", category: "Rooms", imageUrl: "https://lh3.googleusercontent.com/d/1naYixYQBaVanreE0kMVh2ElAObwjVKsH" },
-  { id: "g-14", title: "Ventilated Balcony View", category: "Balcony", imageUrl: "https://lh3.googleusercontent.com/d/1lYvjpA_OSovPxIK0Hj9MnxkYcmWqSydG" },
   { id: "g-15", title: "Welcome Foyer Entrance", category: "Lobby & Entrance", imageUrl: "https://lh3.googleusercontent.com/d/1fF1-YNPoX5IPU5IHGDUPkAg22oaN4KlJ" },
   { id: "g-16", title: "Neat Room Bed Setting", category: "Rooms", imageUrl: "https://lh3.googleusercontent.com/d/1d-vB6fouXibNRuXPghgXmPkP5xUeJ-QH" },
   { id: "g-17", title: "Modern Tiled Washroom", category: "Washroom", imageUrl: "https://lh3.googleusercontent.com/d/1Xy2HbfpZXtD7OIZxhx90WxE6zVvlFLJH" },
